@@ -1,0 +1,34 @@
+﻿<Window x:Class="FS_Helper.ShowDeletedAlignmentSource"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FS_Helper"
+        mc:Ignorable="d"
+        Title="Displaying deleted alignment source" Height="1000" Width="1600" WindowStartupLocation="CenterOwner">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Image
+            x:Name="DImage"
+            Grid.Row="0"
+            Grid.Column="0" Grid.ColumnSpan="2"
+            HorizontalAlignment="Center"
+            Margin="5"
+            Stretch="Uniform"
+            VerticalAlignment="Center"
+            Loaded="DImage_OnLoaded"/>
+
+        <Button x:Name="BtKeepFile" Margin="5" FontSize="16" Grid.Row="1" Grid.Column="0" Height="40" Click="BtKeepFile_OnClick">Keep File</Button>
+        <Button x:Name="BtRemoveFile" Margin="5" FontSize="16" Grid.Row="1" Grid.Column="1" Height="40" Click="BtRemoveFile_OnClick" >Remove File</Button>
+        <Button x:Name="BtAbort" Margin="5" VerticalAlignment="Center" FontSize="18" Grid.Row="3" Grid.Column="1" Height="40" Click="BtAbort_OnClick">Abort</Button>
+    </Grid>
+</Window>
