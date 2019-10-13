@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FS_Helper"
         mc:Ignorable="d"
-        Title="Face Swap Helper" Height="600" Width="800" MinHeight="600" MinWidth="800" Loaded="Window_Loaded" Closing="MainWindow_OnClosing" Icon="app.ico">
+        Title="Face Swap Helper" Height="800" Width="800" MinHeight="600" MinWidth="800" Loaded="Window_Loaded" Closing="MainWindow_OnClosing" Icon="app.ico">
     <!-- <local:DpiDecorator> -->
         <Grid>
         <Grid.RowDefinitions>
@@ -20,6 +20,10 @@
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
@@ -37,17 +41,100 @@
             <ComboBoxItem>Destination Face</ComboBoxItem>
         </ComboBox>
 
-        <Button x:Name="BtClose" Grid.Row="10" Grid.Column="3" Margin="5" Click="BtClose_OnClick">Close</Button>
+        <Button x:Name="BtClose" Grid.Row="13" Grid.Column="3" Margin="5" Click="BtClose_OnClick">Close</Button>
+        <GroupBox Grid.Row="3" Grid.ColumnSpan="4" Grid.RowSpan="2" Margin="2" FontSize="14" FontWeight="Bold"  
+            Background="LightYellow" BorderBrush="Orange" BorderThickness="3">
+            <GroupBox.Header>
+                After extract
+            </GroupBox.Header>
+            <Grid >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Button x:Name="BtArrangeAfterExtract" FontSize="12" FontWeight="Regular" Grid.Row="0" Margin="5" Click="BtArrangeAfterExtract_OnClick" ToolTip="Run it after the first data_* extract faces DLIB all GPU +manual fix">Arrange faces after extract into separate directories</Button>
+                <Button x:Name="BtMergeAfterExtract" FontSize="12" FontWeight="Regular" Grid.Row="0" Grid.Column="1" Margin="5" Click="BtMergeAfterExtract_OnClick" ToolTip="Run it to merge all faces into aligned folder after manual cleaning from unwanted faces of each sub-directory with faces _*">Merge back separate directories into one</Button>
+                <Button x:Name="BtReviewDeletedAlignments" FontSize="12" FontWeight="Regular"  Grid.Row="1" Grid.Column="0" Margin="5" Click="BtReviewDeletedAlignments_OnClick" ToolTip="If some unwanted alignments have been removed, run it to check whether source file itself is problematic and can be removed">Review source files for deleted alignments</Button>
+            </Grid>
+        </GroupBox>
+        <GroupBox Grid.Row="5" Grid.ColumnSpan="4" Margin="2" Grid.RowSpan="2" FontSize="14" FontWeight="Bold"  
+            Background="LightYellow" BorderBrush="Orange" BorderThickness="3">
+            <GroupBox.Header >
+                Review landmarks
+            </GroupBox.Header>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Button x:Name="BtArrangeDebugLandmarks" FontSize="12" FontWeight="Regular" Grid.Row="0" Grid.Column="0" Margin="5" Click="BtArrangeDebugLandmarks_OnClick" ToolTip="Run it after the script 'other) data_* util add landmarks debug images' to move landmarks into separate folder for subsequent cleaning">Arrange debug landmarks into landmarks directory</Button>
+                <Button x:Name="BtRemoveDisregardedAlignments" FontSize="12" FontWeight="Regular"  Grid.Row="0" Grid.Column="1" Margin="5" Click="BtRemoveDisregardedAlignments_OnClick" ToolTip="Removing alignments having their landmarks disregarded manually by deleting landmark from landmarks folder">Remove alignments with disregarded landmarks</Button>
+            </Grid>
+        </GroupBox>
+        <GroupBox Grid.Row="7" Grid.ColumnSpan="4" Grid.RowSpan="2"  Margin="2" FontSize="14" FontWeight="Bold"  
+            Background="LightYellow" BorderBrush="Orange" BorderThickness="3">
+            <GroupBox.Header>
+                Mask editor
+            </GroupBox.Header>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Button x:Name="BtBackupOld" FontSize="12" FontWeight="Regular"  Grid.Column="0" Margin="5" Click="BtBackupOld_Click"  ToolTip="Keep only recent alignments for mask editor (backup others). This will move older files (program would decide what is the most recent batch) to a_all and d_all. After you can run mask editor only for recent">Keep only recent alignments for mask editor (backup others)</Button>
+                <Button x:Name="BtMergeBackOld" FontSize="12" FontWeight="Regular"  Grid.Column="1" Margin="5" Click="BtMergeBackOld_Click"  ToolTip="Copy back files in a_all and d_all to aligned and aligned_debug. To be executed after mask editor">Copy back older files after mask editor</Button>
+            </Grid>
+        </GroupBox>
+        <GroupBox Grid.Row="9" Grid.ColumnSpan="4" Grid.RowSpan="2"  Margin="2" FontSize="14" FontWeight="Bold"  
+            Background="LightYellow" BorderBrush="Orange" BorderThickness="3">
+            <GroupBox.Header>
+                Prepare for manual extract
+            </GroupBox.Header>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Button x:Name="BtRemoveDebugImagesWithNoAlignments" FontSize="12" FontWeight="Regular"  Grid.Column="0" Margin="5" Click="BtRemoveDebugImagesWithNoAlignments_OnClick" ToolTip="Removing debug files from aligned_debug not having alignments in aligned folder. This is to enable re-extract manually alignments by running the script 'data_* extract faces MANUAL RE-EXTRACT DELETED RESULTS DEBUG'">Remove debug images with no alignments</Button>
+                <Button x:Name="BtRenameReExtractedAlignments" FontSize="12" FontWeight="Regular"  Grid.Column="1" Margin="5" Click="BtRenameReExtractedAlignments_OnClick" ToolTip="Just renames *_0.* files to *.* normally to be done after the script 'data_* extract faces MANUAL RE-EXTRACT DELETED RESULTS DEBUG'">Rename re-extracted alignments (*__0.* to *.*)</Button>
+            </Grid>
+        </GroupBox>
+        <GroupBox Grid.Row="11" Grid.ColumnSpan="4" Grid.RowSpan="2" Margin="2" FontSize="14" FontWeight="Bold"  
+            Background="LightYellow" BorderBrush="Orange" BorderThickness="3">
+            <GroupBox.Header>
+                Other
+            </GroupBox.Header>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Button x:Name="BtConvertPngToJpg" FontSize="12" FontWeight="Regular"  Grid.Column="0" Margin="5" Click="BtConvertPngToJpg_OnClick" ToolTip="Converts all png to jpg in merged folder">Convert .PNG to .JPG in merged folder</Button>        
+            </Grid>
+        </GroupBox>
 
-        <Button x:Name="BtArrangeAfterExtract" Grid.Row="3" Grid.ColumnSpan="2" Margin="5" Click="BtArrangeAfterExtract_OnClick" ToolTip="Run it after the first data_* extract faces DLIB all GPU +manual fix">Arrange faces after extract into separate directories</Button>
-        <Button x:Name="BtMergeAfterExtract" Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="2" Margin="5" Click="BtMergeAfterExtract_OnClick" ToolTip="Run it to merge all faces into aligned folder after manual cleaning from unwanted faces of each sub-directory with faces _*">Merge back separate directories into one</Button>
-        <Button x:Name="BtReviewDeletedAlignments" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="5" Click="BtReviewDeletedAlignments_OnClick" ToolTip="If some unwanted alignments have been removed, run it to check whether source file itself is problematic and can be removed">Review source files for deleted alignments</Button>
-        <Button x:Name="BtArrangeDebugLandmarks" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Margin="5" Click="BtArrangeDebugLandmarks_OnClick" ToolTip="Run it after the script 'other) data_* util add landmarks debug images' to move landmarks into separate folder for subsequent cleaning">Arrange debug landmarks into landmarks directory</Button>
-        <Button x:Name="BtRemoveDisregardedAlignments" Grid.Row="5" Grid.Column="2" Grid.ColumnSpan="2" Margin="5" Click="BtRemoveDisregardedAlignments_OnClick" ToolTip="Removing alignments having their landmarks disregarded manually by deleting landmark from landmarks folder">Remove alignments with disregarded landmarks</Button>
-        <Button x:Name="BtRemoveDebugImagesWithNoAlignments" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Margin="5" Click="BtRemoveDebugImagesWithNoAlignments_OnClick" ToolTip="Removing debug files from aligned_debug not having alignments in aligned folder. This is to enable re-extract manually alignments by running the script 'data_* extract faces MANUAL RE-EXTRACT DELETED RESULTS DEBUG'">Remove debug images with no alignments</Button>
-        <Button x:Name="BtRenameReExtractedAlignments" Grid.Row="6" Grid.Column="2" Grid.ColumnSpan="2" Margin="5" Click="BtRenameReExtractedAlignments_OnClick" ToolTip="Just renames *_0.* files to *.* normally to be done after the script 'data_* extract faces MANUAL RE-EXTRACT DELETED RESULTS DEBUG'">Rename re-extracted alignments (*__0.* to *.*)</Button>
-        <Button x:Name="BtConvertPngToJpg" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Margin="5" Click="BtConvertPngToJpg_OnClick" ToolTip="Converts all png to jpg in merged folder">Convert .PNG to .JPG in merged folder</Button>
-        <StatusBar Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="3">
+        
+        <StatusBar Grid.Row="13" Grid.Column="0" Grid.ColumnSpan="3">
             <Label HorizontalAlignment="Left" VerticalAlignment="Center" Content="{Binding Path=Status}"/>
         </StatusBar>
     </Grid>

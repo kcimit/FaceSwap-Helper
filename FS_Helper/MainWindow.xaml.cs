@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -197,8 +198,19 @@ namespace FS_Helper
             if (!Directory.Exists(landmarks))
                 Directory.CreateDirectory(landmarks);
 
-            var dirInfo = new DirectoryInfo(path);
-            var info = dirInfo.GetFiles("*_debug.*");
+            var dirInfo = new DirectoryInfo(landmarks);
+            var info = dirInfo.GetFiles("*.*");
+            if (info.Count()>0)
+            {
+                var res = MessageBox.Show("There are files in landmarks folder. Do you want to remove them?", "Question", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+                if (res != MessageBoxResult.Yes)
+                    return;
+                foreach (var f in info)
+                    File.Delete(f.FullName);
+            }
+            
+            dirInfo = new DirectoryInfo(path);
+            info = dirInfo.GetFiles("*_debug.*");
             foreach (var f in info)
             {
                 var name = Path.GetFileNameWithoutExtension(f.FullName);
@@ -324,6 +336,149 @@ namespace FS_Helper
             var merged = Path.Combine(TbDir.Text, _target, "merged");
             ConvertToJpg.ConvertAll(merged, Cvm);
             MessageBox.Show("Done!");
+        }
+
+        private void BtBackupOld_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(TbDir.Text))
+            {
+                MessageBox.Show("Select workspace directory");
+                return;
+            }
+
+            var alignments = Path.Combine(TbDir.Text, _target, "aligned");
+
+            var dirAlInfo = new DirectoryInfo(alignments);
+            var alInfo = dirAlInfo.GetFiles("*.*");
+            if (alInfo.Count()==0)
+            {
+                MessageBox.Show("There are no files in aligned directory");
+                return;
+            }
+            var creationDates = alInfo.Select(r => r.LastWriteTime).OrderBy(r => r).ToList();
+            var tupleDates = new List<Tuple<DateTime, DateTime>>();
+            var start_date = creationDates.First();
+            var end_date = creationDates.First();
+            foreach (var d in creationDates)
+            {
+                if ((d - end_date) < new TimeSpan(0, 1, 0))
+                {
+                    end_date = d;
+                    continue;
+                }
+                tupleDates.Add(new Tuple<DateTime, DateTime>(start_date, end_date));
+                start_date = d;
+                end_date = d;
+            }
+            var last_period = new Tuple<DateTime, DateTime>(start_date, end_date);
+            if (!tupleDates.Any() || (tupleDates.Last()!=last_period))
+                tupleDates.Add(last_period);
+            var choices = new Dictionary<string, Tuple<DateTime, DateTime>>();
+            tupleDates.Reverse();
+            foreach (var tdate in tupleDates)
+                choices.Add($"{tdate.Item1} - {tdate.Item2}", tdate);
+            var cbdialog = new CBDialog("Select date ranges", "Select date range of files to be kept in aligned folder for mask editor", choices.Keys.ToList());
+            cbdialog.ShowDialog();
+            if (!cbdialog.Selected) return;
+            var selectedDates = choices[cbdialog.SelectedItem];
+
+            // Preparing target folders
+            var aligned_backup = Path.Combine(TbDir.Text, _target, "aligned_backup");
+            if (!Directory.Exists(aligned_backup))
+                Directory.CreateDirectory(aligned_backup);
+
+            var dirInfo = new DirectoryInfo(aligned_backup);
+            var info = dirInfo.GetFiles("*.*");
+            if (info.Count() > 0)
+            {
+                var res = MessageBox.Show("There are files in aligned_backup folder. Do you want to remove them?", "Question", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+                if (res != MessageBoxResult.Yes)
+                {
+                    MessageBox.Show("Aborted.");
+                    return;
+                }
+                foreach (var f in info)
+                    File.Delete(f.FullName);
+            }
+            var debug_backup = Path.Combine(TbDir.Text, _target, "debug_backup");
+            if (!Directory.Exists(debug_backup))
+                Directory.CreateDirectory(debug_backup);
+
+            var dirInfo_debug = new DirectoryInfo(debug_backup);
+            var info_debug = dirInfo_debug.GetFiles("*.*");
+            if (info_debug.Count() > 0)
+            {
+                var res = MessageBox.Show("There are files in debug_backup folder. Do you want to remove them?", "Question", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+                if (res != MessageBoxResult.Yes)
+                {
+                    MessageBox.Show("Aborted.");
+                    return;
+                }
+                foreach (var f in info_debug)
+                    File.Delete(f.FullName);
+            }
+
+            // Moving files
+            var a_count = 0;
+            var d_count = 0;
+            foreach (var f in alInfo)
+            {
+                if (f.LastWriteTime >= selectedDates.Item1 && f.LastWriteTime <= selectedDates.Item2) continue;
+                var new_name = Path.Combine(aligned_backup, f.Name);
+                File.Move(f.FullName, new_name);
+                a_count++;
+                var source_name_debug = Path.Combine(TbDir.Text, _target, "aligned_debug", f.Name);
+                var new_name_debug = Path.Combine(debug_backup, f.Name);
+                File.Move(source_name_debug, new_name_debug);
+                d_count++;
+            }
+            MessageBox.Show($"Done! Moved {a_count} alignments and {d_count} debug alignments");
+        }
+
+        private void BtMergeBackOld_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(TbDir.Text))
+            {
+                MessageBox.Show("Select workspace directory");
+                return;
+            }
+
+            var aligned_backup = Path.Combine(TbDir.Text, _target, "aligned_backup");
+            if (!Directory.Exists(aligned_backup))
+            {
+                MessageBox.Show("aligned_backup folder does not exists. Aborting.");
+                return;
+            }
+            var dirInfo = new DirectoryInfo(aligned_backup);
+            var info = dirInfo.GetFiles("*.*");
+
+            var debug_backup = Path.Combine(TbDir.Text, _target, "debug_backup");
+            if (!Directory.Exists(debug_backup))
+            {
+                MessageBox.Show("debug_backup folder does not exists. Aborting.");
+                return;
+            }
+
+            var dirInfo_debug = new DirectoryInfo(debug_backup);
+            var info_debug = dirInfo_debug.GetFiles("*.*");
+
+            // Moving files
+            var a_count = 0;
+            var d_count = 0;
+            foreach (var f in info)
+            {
+                var new_name = Path.Combine(TbDir.Text, _target, "aligned", f.Name);
+                File.Move(f.FullName, new_name);
+                a_count++;
+            }
+            foreach (var f in info_debug)
+            { 
+                var new_name_debug = Path.Combine(TbDir.Text, _target, "aligned_debug", f.Name);
+                File.Move(f.FullName, new_name_debug);
+                d_count++;
+            }
+            
+            MessageBox.Show($"Done! Moved {a_count} alignments and {d_count} debug alignments");
         }
     }
 }

@@ -59,6 +59,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="CBDialog.xaml.cs">
+      <DependentUpon>CBDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ConnectionViewModel.cs" />
     <Compile Include="ConvertToJpg.cs" />
     <Compile Include="Decorator.cs" />
@@ -68,6 +71,10 @@
     <Compile Include="SelectDuplicate.xaml.cs">
       <DependentUpon>SelectDuplicate.xaml</DependentUpon>
     </Compile>
+    <Page Include="CBDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
