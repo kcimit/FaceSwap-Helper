@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -21,16 +24,55 @@ namespace FS_Helper
     public partial class ShowDeletedAlignmentSource : Window
     {
         public bool Aborted { get; set; }
-        private readonly string _file;
+        public List<string> FilesToRemove { get; set; }
+        private readonly List<string> _files;
+        private List<string> files_to_remove;
         private BitmapImage b1;
-        public bool? KeepFile { get; set; }
+        private int current_image;
+        Bitmap icon;
 
-        public ShowDeletedAlignmentSource(string file)
+        public ShowDeletedAlignmentSource(List<string> files)
         {
             InitializeComponent();
-            this._file = file;
-            KeepFile = null;
+            _files = files;
+            files_to_remove = new List<string>();
             Aborted = false;
+            current_image = 0;
+            FilesToRemove = new List<string>();
+            tbRemoveCount.Text = $"Files marked for removal: {files_to_remove.Count}";
+            icon = FS_Helper.Properties.Resources.thrash;
+        }
+
+        private void Window_ContentRendered(object sender, EventArgs e)
+        {
+            ShowImage();
+        }
+
+        private void ShowImage()
+        {
+            // ... Create a new BitmapImage.
+            b1 = new BitmapImage();
+            b1.BeginInit();
+            b1.CacheOption = BitmapCacheOption.OnLoad;
+            b1.UriSource = new Uri(_files[current_image]);
+            b1.EndInit();
+            DImage.Source = b1;
+            tbFileName.Text = _files[current_image];
+
+            if (files_to_remove.Contains(_files[current_image]))
+                using (MemoryStream memory = new MemoryStream())
+                {
+                    icon.Save(memory, ImageFormat.Png);
+                    memory.Position = 0;
+                    BitmapImage bitmapImage = new BitmapImage();
+                    bitmapImage.BeginInit();
+                    bitmapImage.StreamSource = memory;
+                    bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmapImage.EndInit();
+                    ThrashImage.Source = bitmapImage;
+                }
+            else
+                ThrashImage.Source = null;
         }
 
         private void CloseDialog()
@@ -39,35 +81,55 @@ namespace FS_Helper
             DImage.Source = null;
             this.Close();
         }
-        private void DImage_OnLoaded(object sender, RoutedEventArgs e)
-        {
-            // ... Create a new BitmapImage.
-            b1 = new BitmapImage();
-            b1.BeginInit();
-            b1.CacheOption = BitmapCacheOption.OnLoad;
-            b1.UriSource = new Uri(_file);
-            b1.EndInit();
-
-            // ... Get Image reference from sender.
-            // ... Assign Source.
-            if (sender is Image image) image.Source = b1;
-        }
 
         private void BtKeepFile_OnClick(object sender, RoutedEventArgs e)
         {
-            KeepFile = true;
-            CloseDialog();
+            if (files_to_remove.Contains(_files[current_image]))
+                files_to_remove.Remove(_files[current_image]);
+            tbRemoveCount.Text = $"Files marked for removal: {files_to_remove.Count}";
+            NextImage();
         }
 
         private void BtRemoveFile_OnClick(object sender, RoutedEventArgs e)
         {
-            KeepFile = false;
-            CloseDialog();
+            if (!files_to_remove.Contains(_files[current_image]))
+                files_to_remove.Add(_files[current_image]);
+            tbRemoveCount.Text = $"Files marked for removal: {files_to_remove.Count}";
+            NextImage();
         }
 
         private void BtAbort_OnClick(object sender, RoutedEventArgs e)
         {
             Aborted = true;
+            files_to_remove = new List<string>();
+            CloseDialog();
+        }
+
+        private void BtPrev_Click(object sender, RoutedEventArgs e)
+        {
+            PrevImage();
+        }
+
+        private void PrevImage()
+        {
+            if (current_image != 0) current_image--;
+            ShowImage();
+        }
+
+        private void BtNext_Click(object sender, RoutedEventArgs e)
+        {
+            NextImage();
+        }
+
+        private void NextImage()
+        {
+            if (current_image != _files.Count - 1) current_image++;
+            ShowImage();
+        }
+
+        private void BtConfirm_Click(object sender, RoutedEventArgs e)
+        {
+            FilesToRemove = files_to_remove;
             CloseDialog();
         }
     }

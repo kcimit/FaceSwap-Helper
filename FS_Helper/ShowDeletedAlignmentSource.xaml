@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FS_Helper"
         mc:Ignorable="d"
-        Title="Displaying deleted alignment source" Height="1000" Width="1600" WindowStartupLocation="CenterOwner">
+        Title="Displaying deleted alignment source" Height="1000" Width="1600" WindowStartupLocation="CenterOwner" ContentRendered="Window_ContentRendered">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -16,19 +16,42 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
+        
         <Image
             x:Name="DImage"
             Grid.Row="0"
-            Grid.Column="0" Grid.ColumnSpan="2"
+            Grid.Column="0" Grid.ColumnSpan="4"
             HorizontalAlignment="Center"
             Margin="5"
             Stretch="Uniform"
-            VerticalAlignment="Center"
-            Loaded="DImage_OnLoaded"/>
-
-        <Button x:Name="BtKeepFile" Margin="5" FontSize="16" Grid.Row="1" Grid.Column="0" Height="40" Click="BtKeepFile_OnClick">Keep File</Button>
-        <Button x:Name="BtRemoveFile" Margin="5" FontSize="16" Grid.Row="1" Grid.Column="1" Height="40" Click="BtRemoveFile_OnClick" >Remove File</Button>
-        <Button x:Name="BtAbort" Margin="5" VerticalAlignment="Center" FontSize="18" Grid.Row="3" Grid.Column="1" Height="40" Click="BtAbort_OnClick">Abort</Button>
+            VerticalAlignment="Center"/>
+        <Image
+            x:Name="ThrashImage"
+            Grid.Row="0"
+            Width="128"
+            Height="128"
+            Grid.Column="0" Grid.ColumnSpan="4"
+            HorizontalAlignment="Left"
+            Margin="5"
+            Stretch="Uniform"
+            VerticalAlignment="Top"/>
+        <!--Loaded="DImage_OnLoaded"-->
+        <Grid Grid.Column="0" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="BtPrev" Margin="5" FontSize="16" Grid.Column="0" Height="40" Click="BtPrev_Click">Previous</Button>
+            <Button x:Name="BtNext" Margin="5" FontSize="16" Grid.Column="1" Height="40" Click="BtNext_Click">Next</Button>
+        </Grid>
+        <TextBlock x:Name="tbFileName" Text="NoFile" Grid.Row="1" Grid.Column="1" Margin="5" VerticalAlignment="Center"/>
+        <TextBlock x:Name="tbRemoveCount" Text="NoFile" Grid.Row="3" Grid.Column="1" Margin="5" VerticalAlignment="Center"/>
+        <Button x:Name="BtKeepFile" Margin="5" FontSize="16" Grid.Row="1" Grid.Column="2" Height="40" Click="BtKeepFile_OnClick">Keep File</Button>
+        <Button x:Name="BtRemoveFile" Margin="5" FontSize="16" Grid.Row="1" Grid.Column="3" Height="40" Click="BtRemoveFile_OnClick" >Remove File</Button>
+        <Button x:Name="BtConfirm" Margin="5" VerticalAlignment="Center" FontSize="18" Grid.Row="3" Grid.Column="2" Height="40" Click="BtConfirm_Click">Confirm and Close</Button>
+        <Button x:Name="BtAbort" Margin="5" VerticalAlignment="Center" FontSize="18" Grid.Row="3" Grid.Column="3" Height="40" Click="BtAbort_OnClick">Abort</Button>
     </Grid>
 </Window>

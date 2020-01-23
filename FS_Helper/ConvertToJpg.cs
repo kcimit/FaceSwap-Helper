@@ -27,7 +27,7 @@ namespace FS_Helper
             var numCores = Math.Min(Environment.ProcessorCount, 10);
 
             var dirInfo = new DirectoryInfo(folder);
-            var alFiles = dirInfo.GetFiles("*.png");
+            var alFiles = dirInfo.GetFiles("*.png", SearchOption.TopDirectoryOnly);
             _allCount = alFiles.Length;
 
             if (_allCount == 0)

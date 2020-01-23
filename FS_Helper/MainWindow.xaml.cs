@@ -27,20 +27,25 @@ namespace FS_Helper
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            // Reading last open file
-            try
+            if (Directory.Exists(System.AppDomain.CurrentDomain.BaseDirectory + @"workspace"))
+                TbDir.Text = System.AppDomain.CurrentDomain.BaseDirectory + @"workspace";
+            else
             {
-                using (var fs = new FileStream($"{AppDomain.CurrentDomain.BaseDirectory}\\last.txt", FileMode.Open))
+                // Reading last open file
+                try
                 {
-                    using (var reader = new StreamReader(fs))
+                    using (var fs = new FileStream($"{AppDomain.CurrentDomain.BaseDirectory}\\last.txt", FileMode.Open))
                     {
-                        TbDir.Text = reader.ReadLine() ?? throw new InvalidOperationException();
+                        using (var reader = new StreamReader(fs))
+                        {
+                            TbDir.Text = reader.ReadLine() ?? throw new InvalidOperationException();
+                        }
                     }
                 }
-            }
-            catch
-            {
-                // ignored
+                catch
+                {
+                    // ignored
+                }
             }
         }
 
@@ -163,26 +168,39 @@ namespace FS_Helper
             var info = dirInfo.GetFiles("*.*");
             //var is_png = info.Count(r => r.Extension.Equals("png")) >
             //             info.Count(r => r.Extension.Equals("jpg"));
-            
-            foreach (var f in info)
+            var file_list = new List<string>();
+            foreach (var f in info.Where(r => (new string[] { ".png", ".jpg", ".jpeg" }).Contains(r.Extension)))
             {
-               var name = f.FullName; 
-               var alignedName = Path.Combine(pathSource, "aligned", Path.GetFileNameWithoutExtension(f.Name) + ".jpg");
-               if (File.Exists(alignedName)) continue;
-               var im = new ShowDeletedAlignmentSource(name) {Owner = this};
-               im.ShowDialog();
-               if (im.Aborted)
-               {
-                   MessageBox.Show("Aborted!");
-                   return;
-               }
-                var keepFile = im.KeepFile;
-               im = null;
-               if (keepFile==false)
-                   File.Delete(name);
+                var name = f.FullName;
+                var alignedName = Path.Combine(pathSource, "aligned", $"{Path.GetFileNameWithoutExtension(f.Name)}.jpg");
+                if (File.Exists(alignedName)) continue;
+                file_list.Add(name);
+                
             }
+            if (!file_list.Any())
+            {
+                MessageBox.Show("Nothing to remove.");
+                return;
+            }
+            var im = new ShowDeletedAlignmentSource(file_list) { Owner = this };
+            im.ShowDialog();
+            if (im.Aborted)
+            {
+                MessageBox.Show("Aborted!");
+                return;
+            }
+            int dcount = 0;
 
-            MessageBox.Show("Done!");
+            foreach (var f in im.FilesToRemove)
+                try
+                {
+                    File.Delete(f);
+                    dcount++;
+                }
+                catch { }
+
+            MessageBox.Show($"{dcount} files deleted");
+            im = null;
         }
 
         private void BtArrangeDebugLandmarks_OnClick(object sender, RoutedEventArgs e)
@@ -205,6 +223,7 @@ namespace FS_Helper
                 var res = MessageBox.Show("There are files in landmarks folder. Do you want to remove them?", "Question", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
                 if (res != MessageBoxResult.Yes)
                     return;
+
                 foreach (var f in info)
                     File.Delete(f.FullName);
             }
@@ -249,15 +268,14 @@ namespace FS_Helper
 
             var dirInfo = new DirectoryInfo(alignments);
             var info = dirInfo.GetFiles("*.*");
-            var count = 0;
+            var files_to_delete = new List<string>();
+
             foreach (var f in info)
             {
                 if (landmarksFiles.Contains(f.Name)) continue;
-                count++;
-                File.Delete(f.FullName);
+                files_to_delete.Add(f.FullName);
             }
-
-            MessageBox.Show($"Removed {count} files. Done!");
+            DeleteFiles(files_to_delete);
         }
 
         private void BtRemoveDebugImagesWithNoAlignments_OnClick(object sender, RoutedEventArgs e)
@@ -270,23 +288,42 @@ namespace FS_Helper
 
             var alignmentsDebug = Path.Combine(TbDir.Text, _target, "aligned_debug");
             var alignments = Path.Combine(TbDir.Text, _target, "aligned");
-            
+
             var dirAlInfo = new DirectoryInfo(alignments);
+            var check = dirAlInfo.GetFiles("*_?.*");
+            if (check.Count() > 0)
+            {
+                var res = MessageBox.Show("Warning! Alignments with _ are found. It could be not yet renamed alignments after extract. Do you really want to remove them?", "Question", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+                if (res== MessageBoxResult.No || res==MessageBoxResult.Cancel) return;
+            }
             var alInfo = dirAlInfo.GetFiles("*.*");
 
             var alFiles = alInfo.Select(f => f.Name).ToList();
 
             var dirInfo = new DirectoryInfo(alignmentsDebug);
             var info = dirInfo.GetFiles("*.*");
-            var count = 0;
+            var files_to_delete = new List<string>();
             foreach (var f in info)
             {
                 if (alFiles.Contains(f.Name)) continue;
-                count++;
-                File.Delete(f.FullName);
+                files_to_delete.Add(f.FullName);
             }
+            DeleteFiles(files_to_delete);
+        }
 
-            MessageBox.Show($"Removed {count} files. Done!");
+        private static void DeleteFiles(List<string> files_to_delete)
+        {
+            if (files_to_delete.Count > 0)
+            {
+                var res = MessageBox.Show($"You are about to delete {files_to_delete.Count} files. Please confirm deletetion", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (res == MessageBoxResult.Yes)
+                {
+                    foreach (var f in files_to_delete)
+                        File.Delete(f);
+
+                    MessageBox.Show($"Removed {files_to_delete.Count()} files. Done!");
+                }
+            }
         }
 
         private void BtRenameReExtractedAlignments_OnClick(object sender, RoutedEventArgs e)
@@ -335,6 +372,19 @@ namespace FS_Helper
 
             var merged = Path.Combine(TbDir.Text, _target, "merged");
             ConvertToJpg.ConvertAll(merged, Cvm);
+            MessageBox.Show("Done!");
+        }
+
+        private void BtConvertPngToJpgDst_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(TbDir.Text))
+            {
+                MessageBox.Show("Select workspace directory");
+                return;
+            }
+
+            var original = Path.Combine(TbDir.Text, _target);
+            ConvertToJpg.ConvertAll(original, Cvm);
             MessageBox.Show("Done!");
         }
 
@@ -479,6 +529,89 @@ namespace FS_Helper
             }
             
             MessageBox.Show($"Done! Moved {a_count} alignments and {d_count} debug alignments");
+        }
+
+        private void BtReviewAlignments_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(TbDir.Text))
+            {
+                MessageBox.Show("Select workspace directory");
+                return;
+            }
+
+            var path = Path.Combine(TbDir.Text, _target, "aligned");
+            var target_path = Path.Combine(TbDir.Text, _target, "aligned_reviewed");
+            if (!Directory.Exists(target_path)) Directory.CreateDirectory(target_path);
+
+            var dirInfo = new DirectoryInfo(path);
+            var info = dirInfo.GetFiles("*.*");
+            var pairs = new Dictionary<string, List<string>>();
+            foreach (var f in info)
+            {
+                var name = Path.GetFileNameWithoutExtension(f.FullName);
+                var suffix = name.Substring(name.Length - 2, 2);
+                if (!suffix[0].Equals('_')) continue;
+                
+                var fname = name.Substring(0, name.Length - 2) + f.Extension;
+
+                if (!pairs.ContainsKey(fname)) pairs.Add(fname, new List<string>());
+                pairs[fname].Add(Path.GetFileNameWithoutExtension(f.FullName) + f.Extension);
+            }
+            foreach (var item in pairs.Where(kvp => kvp.Value.Count<2).ToList())
+            {
+                pairs.Remove(item.Key);
+            }
+            if (pairs.Count == 0)
+            {
+                MessageBox.Show("No alignments with multiple faces found.");
+                return;
+            }
+
+            var im = new ReviewAlignments(pairs,path) { Owner = this };
+            im.ShowDialog();
+            if (im.Aborted)
+            {
+                MessageBox.Show("Aborted!");
+                return;
+            }
+            
+            int dcount = 0;
+            int rcount = 0;
+            var ar = im.AlignmentsReviewed;
+            foreach (var pair in pairs)
+            {
+                if (!ar.ContainsKey(pair.Key)) continue;
+                if (ar[pair.Key].Equals("stop"))
+                {
+                    foreach (var f in pair.Value)
+                        try
+                        {
+                            File.Delete(Path.Combine(path,f));
+                            dcount++;
+                        }
+                        catch { }
+                }
+                else
+                {
+                    foreach (var f in pair.Value)
+                    {
+                        if (f.Equals(ar[pair.Key]))
+                        {
+                            File.Move(Path.Combine(path, f), Path.Combine(target_path, pair.Key));
+                            rcount++;
+                        }
+                        else
+                            try
+                            {
+                                File.Delete(Path.Combine(path, f));
+                                dcount++;
+                            }
+                            catch { }
+                    }
+                }
+            }
+            MessageBox.Show($"{dcount} files deleted and {rcount} alignments reviewed in aligned_reviewed folder.");
+            im = null;
         }
     }
 }
