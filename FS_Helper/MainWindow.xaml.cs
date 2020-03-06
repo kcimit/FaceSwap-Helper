@@ -27,8 +27,8 @@ namespace FS_Helper
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            if (Directory.Exists(System.AppDomain.CurrentDomain.BaseDirectory + @"workspace"))
-                TbDir.Text = System.AppDomain.CurrentDomain.BaseDirectory + @"workspace";
+            if (Directory.Exists($@"{System.AppDomain.CurrentDomain.BaseDirectory}workspace"))
+                TbDir.Text = $@"{System.AppDomain.CurrentDomain.BaseDirectory}workspace";
             else
             {
                 // Reading last open file
@@ -38,7 +38,7 @@ namespace FS_Helper
                     {
                         using (var reader = new StreamReader(fs))
                         {
-                            TbDir.Text = reader.ReadLine() ?? throw new InvalidOperationException();
+                            TbDir.Text = reader.ReadLine() ?? "";
                         }
                     }
                 }
@@ -79,14 +79,14 @@ namespace FS_Helper
                     }
                 }
             }
-            catch (Exception exc) { MessageBox.Show($"Error creating 'last opened' history file {exc.Message}"); }
+            catch (Exception exc) { MessageBox.Show($"Error creating 'last opened' history file {exc.Message}", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation); }
         }
 
         private void BtArrangeAfterExtract_OnClick(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(TbDir.Text))
             {
-                MessageBox.Show("Select workspace directory");
+                MessageBox.Show("Select workspace directory first.", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
 
@@ -106,14 +106,14 @@ namespace FS_Helper
                 File.Move(f.FullName, newName);
             }
 
-            MessageBox.Show("Done!");
+            MessageBox.Show($"Done!", "Results", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void BtMergeAfterExtract_OnClick(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(TbDir.Text))
             {
-                MessageBox.Show("Select workspace directory");
+                MessageBox.Show("Select workspace directory first.", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
 
@@ -152,14 +152,14 @@ namespace FS_Helper
                     Directory.Delete(subDir);
             }
 
-            MessageBox.Show("Done!");
+            MessageBox.Show($"Done!", "Results", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void BtReviewDeletedAlignments_OnClick(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(TbDir.Text))
             {
-                MessageBox.Show("Select workspace directory");
+                MessageBox.Show("Select workspace directory first.", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
 
@@ -186,7 +186,7 @@ namespace FS_Helper
             im.ShowDialog();
             if (im.Aborted)
             {
-                MessageBox.Show("Aborted!");
+                MessageBox.Show($"Aborted!", "User aborted", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
             int dcount = 0;
@@ -199,7 +199,7 @@ namespace FS_Helper
                 }
                 catch { }
 
-            MessageBox.Show($"{dcount} files deleted");
+            MessageBox.Show($"{dcount} files deleted.", "Results", MessageBoxButton.OK, MessageBoxImage.Information);
             im = null;
         }
 
@@ -207,7 +207,7 @@ namespace FS_Helper
         {
             if (string.IsNullOrEmpty(TbDir.Text))
             {
-                MessageBox.Show("Select workspace directory");
+                MessageBox.Show("Select workspace directory first.", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
 
@@ -238,14 +238,14 @@ namespace FS_Helper
                 File.Move(f.FullName, newName);
             }
 
-            MessageBox.Show("Done!");
+            MessageBox.Show($"Done!", "Results", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void BtRemoveDisregardedAlignments_OnClick(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(TbDir.Text))
             {
-                MessageBox.Show("Select workspace directory");
+                MessageBox.Show("Select workspace directory first.", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
 
@@ -253,14 +253,14 @@ namespace FS_Helper
             var landmarks = Path.Combine(TbDir.Text, _target, "landmarks");
             if (!Directory.Exists(landmarks))
             {
-                MessageBox.Show("Landmarks folder does not exist. Aborting!");
+                MessageBox.Show("Landmarks folder does not exist. Aborting!", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
             var dirLandInfo = new DirectoryInfo(landmarks);
             var landInfo = dirLandInfo.GetFiles("*.*");
             if (landInfo.Length == 0)
             {
-                MessageBox.Show("Landmarks folder is empty. Aborting!");
+                MessageBox.Show("Landmarks folder is empty. Aborting!", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
 
@@ -282,7 +282,7 @@ namespace FS_Helper
         {
             if (string.IsNullOrEmpty(TbDir.Text))
             {
-                MessageBox.Show("Select workspace directory");
+                MessageBox.Show("Select workspace directory first.", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
 
@@ -321,7 +321,7 @@ namespace FS_Helper
                     foreach (var f in files_to_delete)
                         File.Delete(f);
 
-                    MessageBox.Show($"Removed {files_to_delete.Count()} files. Done!");
+                    MessageBox.Show($"Removed {files_to_delete.Count()} files. Done!", "Results", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
         }
@@ -330,7 +330,7 @@ namespace FS_Helper
         {
             if (string.IsNullOrEmpty(TbDir.Text))
             {
-                MessageBox.Show("Select workspace directory");
+                MessageBox.Show("Select workspace directory first.", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
 
@@ -351,8 +351,7 @@ namespace FS_Helper
                 File.Move(f.FullName, newName);
                 count++;
             }
-
-            MessageBox.Show($"Renamed {count} files. Done!");
+            MessageBox.Show($"Renamed {count} files. Done!", "Results", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void CbTarget_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -366,33 +365,33 @@ namespace FS_Helper
         {
             if (string.IsNullOrEmpty(TbDir.Text))
             {
-                MessageBox.Show("Select workspace directory");
+                MessageBox.Show("Select workspace directory first.", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
 
             var merged = Path.Combine(TbDir.Text, _target, "merged");
             ConvertToJpg.ConvertAll(merged, Cvm);
-            MessageBox.Show("Done!");
+            MessageBox.Show($"Done!", "Results", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void BtConvertPngToJpgDst_OnClick(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(TbDir.Text))
             {
-                MessageBox.Show("Select workspace directory");
+                MessageBox.Show("Select workspace directory", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
 
             var original = Path.Combine(TbDir.Text, _target);
             ConvertToJpg.ConvertAll(original, Cvm);
-            MessageBox.Show("Done!");
+            MessageBox.Show($"Done!", "Results", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void BtBackupOld_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(TbDir.Text))
             {
-                MessageBox.Show("Select workspace directory");
+                MessageBox.Show("Select workspace directory first.", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
 
@@ -402,7 +401,7 @@ namespace FS_Helper
             var alInfo = dirAlInfo.GetFiles("*.*");
             if (alInfo.Count()==0)
             {
-                MessageBox.Show("There are no files in aligned directory");
+                MessageBox.Show("There are no files in aligned directory", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
             var creationDates = alInfo.Select(r => r.LastWriteTime).OrderBy(r => r).ToList();
@@ -444,7 +443,7 @@ namespace FS_Helper
                 var res = MessageBox.Show("There are files in aligned_backup folder. Do you want to remove them?", "Question", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
                 if (res != MessageBoxResult.Yes)
                 {
-                    MessageBox.Show("Aborted.");
+                    MessageBox.Show($"Aborted!", "User aborted", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                     return;
                 }
                 foreach (var f in info)
@@ -461,7 +460,7 @@ namespace FS_Helper
                 var res = MessageBox.Show("There are files in debug_backup folder. Do you want to remove them?", "Question", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
                 if (res != MessageBoxResult.Yes)
                 {
-                    MessageBox.Show("Aborted.");
+                    MessageBox.Show($"Aborted!", "User aborted", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                     return;
                 }
                 foreach (var f in info_debug)
@@ -482,21 +481,21 @@ namespace FS_Helper
                 File.Move(source_name_debug, new_name_debug);
                 d_count++;
             }
-            MessageBox.Show($"Done! Moved {a_count} alignments and {d_count} debug alignments");
+            MessageBox.Show($"Done! Moved {a_count} alignments and {d_count} debug alignments.", "Results", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void BtMergeBackOld_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(TbDir.Text))
             {
-                MessageBox.Show("Select workspace directory");
+                MessageBox.Show("Select workspace directory first.", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
 
             var aligned_backup = Path.Combine(TbDir.Text, _target, "aligned_backup");
             if (!Directory.Exists(aligned_backup))
             {
-                MessageBox.Show("aligned_backup folder does not exists. Aborting.");
+                MessageBox.Show("aligned_backup folder does not exists. Aborting.", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
             var dirInfo = new DirectoryInfo(aligned_backup);
@@ -505,7 +504,7 @@ namespace FS_Helper
             var debug_backup = Path.Combine(TbDir.Text, _target, "debug_backup");
             if (!Directory.Exists(debug_backup))
             {
-                MessageBox.Show("debug_backup folder does not exists. Aborting.");
+                MessageBox.Show("debug_backup folder does not exists. Aborting.", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
 
@@ -527,23 +526,27 @@ namespace FS_Helper
                 File.Move(f.FullName, new_name_debug);
                 d_count++;
             }
-            
-            MessageBox.Show($"Done! Moved {a_count} alignments and {d_count} debug alignments");
+            MessageBox.Show($"Done! Moved {a_count} alignments and {d_count} debug alignments.", "Results", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void BtReviewAlignments_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(TbDir.Text))
             {
-                MessageBox.Show("Select workspace directory");
+                MessageBox.Show("Select workspace directory first.", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
 
             var path = Path.Combine(TbDir.Text, _target, "aligned");
+            var dirInfo = new DirectoryInfo(path);
+            if (!Directory.Exists(path))
+            {
+                MessageBox.Show("Aligned directory does not exist.", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                return;
+            }
             var target_path = Path.Combine(TbDir.Text, _target, "aligned_reviewed");
             if (!Directory.Exists(target_path)) Directory.CreateDirectory(target_path);
 
-            var dirInfo = new DirectoryInfo(path);
             var info = dirInfo.GetFiles("*.*");
             var pairs = new Dictionary<string, List<string>>();
             foreach (var f in info)
@@ -563,7 +566,7 @@ namespace FS_Helper
             }
             if (pairs.Count == 0)
             {
-                MessageBox.Show("No alignments with multiple faces found.");
+                MessageBox.Show("No alignments with multiple faces found.", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
 
@@ -571,7 +574,7 @@ namespace FS_Helper
             im.ShowDialog();
             if (im.Aborted)
             {
-                MessageBox.Show("Aborted!");
+                MessageBox.Show("Aborted.", "User aborted", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
             
@@ -610,7 +613,7 @@ namespace FS_Helper
                     }
                 }
             }
-            MessageBox.Show($"{dcount} files deleted and {rcount} alignments reviewed in aligned_reviewed folder.");
+            MessageBox.Show($"{dcount} files deleted and {rcount} alignments reviewed in aligned_reviewed folder.", "Results", MessageBoxButton.OK, MessageBoxImage.Information);
             im = null;
         }
     }

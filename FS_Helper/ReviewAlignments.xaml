@@ -5,7 +5,27 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FS_Helper"
         mc:Ignorable="d"
-        Title="Review Alignments" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner" ContentRendered="Window_ContentRendered">
+        Title="Review Alignments" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner" ContentRendered="Window_ContentRendered" PreviewKeyDown="Window_KeyDown">
+    <Window.Resources>
+        <Storyboard x:Key="AnimateFlicker">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                     From="0"
+                     To="1"
+                     AutoReverse="True"
+                     BeginTime="0:0:1"
+                     Duration="0:0:0.08" />
+            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                     From="1"
+                     To="1"
+                     AutoReverse="True"
+                     Duration="0:0:0.2" />
+            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                     From="1"
+                     To="0"
+                     AutoReverse="True"
+                     Duration="0:0:0.08" />
+        </Storyboard>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="280px"/>
@@ -20,29 +40,108 @@
             <ColumnDefinition Width="280px"/>
             <ColumnDefinition Width="280px"/>
         </Grid.ColumnDefinitions>
-        
-        <Image x:Name="DImage_0" Width="256px" Height="256px" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Margin="10" Stretch="Uniform" VerticalAlignment="Top" MouseDown="DImage_MouseDown"/>
+
+      <!--  <Rectangle x:Name="Rect_0" Width="270px" Height="270px" Grid.Row="0" Stroke="Black" StrokeThickness="2" Grid.Column="0" HorizontalAlignment="Left" Margin="5" Stretch="Uniform" VerticalAlignment="Top">
+            <Rectangle.Triggers>
+                <EventTrigger RoutedEvent="MouseDown">
+                    <BeginStoryboard Storyboard="{StaticResource AnimateFlicker}" />
+                </EventTrigger>
+            </Rectangle.Triggers>
+        </Rectangle> -->
+        <Image x:Name="DImage_0" Width="256px" Height="256px" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Margin="10" Stretch="Uniform" VerticalAlignment="Top" MouseDown="DImage_MouseDown">
+            <Image.Triggers>
+                <EventTrigger RoutedEvent="MouseDown">
+                    <BeginStoryboard Name="Flicker" Storyboard="{StaticResource AnimateFlicker}" />
+                </EventTrigger>
+                <EventTrigger RoutedEvent="MouseUp">
+                    <RemoveStoryboard BeginStoryboardName="Flicker"  />
+                </EventTrigger>
+            </Image.Triggers>
+        </Image>
         <Image x:Name="DImage_0_Overlay" Width="128px" Height="128px" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Margin="10" Stretch="Uniform" VerticalAlignment="Top"/>
 
-        <Image x:Name="DImage_1" Width="256px" Height="256px" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Margin="10" Stretch="Uniform" VerticalAlignment="Top" MouseDown="DImage_MouseDown"/>
+        <Image x:Name="DImage_1" Width="256px" Height="256px" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Margin="10" Stretch="Uniform" VerticalAlignment="Top" MouseDown="DImage_MouseDown">
+            <Image.Triggers>
+                <EventTrigger RoutedEvent="MouseDown">
+                    <BeginStoryboard Name="Flicker1" Storyboard="{StaticResource AnimateFlicker}" />
+                </EventTrigger>
+                <EventTrigger RoutedEvent="MouseUp">
+                    <RemoveStoryboard BeginStoryboardName="Flicker1"  />
+                </EventTrigger>
+            </Image.Triggers>
+        </Image>
         <Image x:Name="DImage_1_Overlay" Width="128px" Height="128px" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Margin="10" Stretch="Uniform" VerticalAlignment="Top"/>
 
-        <Image x:Name="DImage_2" Width="256px" Height="256px" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Left" Margin="10" Stretch="Uniform" VerticalAlignment="Top" MouseDown="DImage_MouseDown"/>
+        <Image x:Name="DImage_2" Width="256px" Height="256px" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Left" Margin="10" Stretch="Uniform" VerticalAlignment="Top" MouseDown="DImage_MouseDown">
+            <Image.Triggers>
+                <EventTrigger RoutedEvent="MouseDown">
+                    <BeginStoryboard Name="Flicker2" Storyboard="{StaticResource AnimateFlicker}" />
+                </EventTrigger>
+                <EventTrigger RoutedEvent="MouseUp">
+                    <RemoveStoryboard BeginStoryboardName="Flicker2"  />
+                </EventTrigger>
+            </Image.Triggers>
+        </Image>
         <Image x:Name="DImage_2_Overlay" Width="128px" Height="128px" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Left" Margin="10" Stretch="Uniform" VerticalAlignment="Top"/>
 
-        <Image x:Name="DImage_3" Width="256px" Height="256px" Grid.Row="0" Grid.Column="3" HorizontalAlignment="Left" Margin="10" Stretch="Uniform" VerticalAlignment="Top" MouseDown="DImage_MouseDown"/>
+        <Image x:Name="DImage_3" Width="256px" Height="256px" Grid.Row="0" Grid.Column="3" HorizontalAlignment="Left" Margin="10" Stretch="Uniform" VerticalAlignment="Top" MouseDown="DImage_MouseDown">
+            <Image.Triggers>
+                <EventTrigger RoutedEvent="MouseDown">
+                    <BeginStoryboard Name="Flicker3" Storyboard="{StaticResource AnimateFlicker}" />
+                </EventTrigger>
+                <EventTrigger RoutedEvent="MouseUp">
+                    <RemoveStoryboard BeginStoryboardName="Flicker3"  />
+                </EventTrigger>
+            </Image.Triggers>
+        </Image>
         <Image x:Name="DImage_3_Overlay" Width="128px" Height="128px" Grid.Row="0" Grid.Column="3" HorizontalAlignment="Left" Margin="10" Stretch="Uniform" VerticalAlignment="Top"/>
 
-        <Image x:Name="DImage_4" Width="256px" Height="256px" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Margin="10" Stretch="Uniform" VerticalAlignment="Top" MouseDown="DImage_MouseDown"/>
+        <Image x:Name="DImage_4" Width="256px" Height="256px" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Margin="10" Stretch="Uniform" VerticalAlignment="Top" MouseDown="DImage_MouseDown">
+            <Image.Triggers>
+                <EventTrigger RoutedEvent="MouseDown">
+                    <BeginStoryboard Name="Flicker4" Storyboard="{StaticResource AnimateFlicker}" />
+                </EventTrigger>
+                <EventTrigger RoutedEvent="MouseUp">
+                    <RemoveStoryboard BeginStoryboardName="Flicker4"  />
+                </EventTrigger>
+            </Image.Triggers>
+        </Image>
         <Image x:Name="DImage_4_Overlay" Width="128px" Height="128px" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Margin="10" Stretch="Uniform" VerticalAlignment="Top"/>
 
-        <Image x:Name="DImage_5" Width="256px" Height="256px" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Margin="10" Stretch="Uniform" VerticalAlignment="Top" MouseDown="DImage_MouseDown"/>
+        <Image x:Name="DImage_5" Width="256px" Height="256px" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Margin="10" Stretch="Uniform" VerticalAlignment="Top" MouseDown="DImage_MouseDown">
+            <Image.Triggers>
+                <EventTrigger RoutedEvent="MouseDown">
+                    <BeginStoryboard Name="Flicker5" Storyboard="{StaticResource AnimateFlicker}" />
+                </EventTrigger>
+                <EventTrigger RoutedEvent="MouseUp">
+                    <RemoveStoryboard BeginStoryboardName="Flicker5"  />
+                </EventTrigger>
+            </Image.Triggers>
+        </Image>
         <Image x:Name="DImage_5_Overlay" Width="128px" Height="128px" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Margin="10" Stretch="Uniform" VerticalAlignment="Top"/>
 
-        <Image x:Name="DImage_6" Width="256px" Height="256px" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left" Margin="10" Stretch="Uniform" VerticalAlignment="Top" MouseDown="DImage_MouseDown"/>
+        <Image x:Name="DImage_6" Width="256px" Height="256px" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left" Margin="10" Stretch="Uniform" VerticalAlignment="Top" MouseDown="DImage_MouseDown">
+            <Image.Triggers>
+                <EventTrigger RoutedEvent="MouseDown">
+                    <BeginStoryboard Name="Flicker6" Storyboard="{StaticResource AnimateFlicker}" />
+                </EventTrigger>
+                <EventTrigger RoutedEvent="MouseUp">
+                    <RemoveStoryboard BeginStoryboardName="Flicker6"  />
+                </EventTrigger>
+            </Image.Triggers>
+        </Image>
         <Image x:Name="DImage_6_Overlay" Width="128px" Height="128px" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left" Margin="10" Stretch="Uniform" VerticalAlignment="Top"/>
 
-        <Image x:Name="DImage_7" Width="256px" Height="256px" Grid.Row="1" Grid.Column="3" HorizontalAlignment="Left" Margin="10" Stretch="Uniform" VerticalAlignment="Top" MouseDown="DImage_MouseDown"/>
+        <Image x:Name="DImage_7" Width="256px" Height="256px" Grid.Row="1" Grid.Column="3" HorizontalAlignment="Left" Margin="10" Stretch="Uniform" VerticalAlignment="Top" MouseDown="DImage_MouseDown">
+            <Image.Triggers>
+                <EventTrigger RoutedEvent="MouseDown">
+                    <BeginStoryboard Name="Flicker7" Storyboard="{StaticResource AnimateFlicker}" />
+                </EventTrigger>
+                <EventTrigger RoutedEvent="MouseUp">
+                    <RemoveStoryboard BeginStoryboardName="Flicker7"  />
+                </EventTrigger>
+            </Image.Triggers>
+        </Image>
         <Image x:Name="DImage_7_Overlay" Width="128px" Height="128px" Grid.Row="1" Grid.Column="3" HorizontalAlignment="Left" Margin="10" Stretch="Uniform" VerticalAlignment="Top"/>
 
 
@@ -56,6 +155,7 @@
         </Grid>
         <TextBlock x:Name="tbFileName" Text="NoFile" Grid.Row="2" Grid.Column="1" Margin="5" VerticalAlignment="Center"/>
         <TextBlock x:Name="tbRemoveCount" Text="NoFile" Grid.Row="4" Grid.Column="1" Margin="5" VerticalAlignment="Center"/>
+        <Label Content="Press 'space' to select first image and continue" Grid.Row="4" Grid.Column="0" Margin="5" VerticalAlignment="Center"/>
         <Button x:Name="BtConfirm" Margin="5" VerticalAlignment="Center" FontSize="18" Grid.Row="4" Grid.Column="2" Height="40" Click="BtConfirm_Click">Confirm and Close</Button>
         <Button x:Name="BtAbort" Margin="5" VerticalAlignment="Center" FontSize="18" Grid.Row="4" Grid.Column="3" Height="40" Click="BtAbort_OnClick">Abort</Button>
     </Grid>

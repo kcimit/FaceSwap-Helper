@@ -26,6 +26,8 @@ namespace FS_Helper
     {
         public bool Aborted { get; set; }
         public Dictionary<string, string> AlignmentsReviewed { get; set; }
+        public bool UpdateChoice { get; private set; }
+
         private Dictionary<string, string> alignments_reviewed;
         private Dictionary<string, string> elements_displayed;
         private BitmapImage b1;
@@ -192,19 +194,37 @@ namespace FS_Helper
             SetChoiseOn(elementName);
         }
 
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key== Key.Space)
+            {
+                if (!UpdateChoice)
+                {
+                    e.Handled = true;
+                    return;
+                }
+                if (elements_displayed == null || elements_displayed.Count == 0) return;
+                SetChoiseOn(elements_displayed.Keys.First());
+                e.Handled = true;
+            }
+        }
+
+
         private void SetChoiseOn(string elementName)
         {
+            UpdateChoice = false;
             if (alignments_reviewed.ContainsKey(current_image))
                 alignments_reviewed[current_image] = elements_displayed[elementName];
             else
             {
                 alignments_reviewed.Add(current_image, elements_displayed[elementName]);
-                tbRemoveCount.Text = $"Alignments reviewed: {alignments_reviewed.Count}";
+                tbRemoveCount.Text = $"Alignments reviewed: {alignments_reviewed.Count}/{pairs.Count}";
             }
             if (elements_displayed[elementName]!="stop")
                 last_image = System.IO.Path.Combine(path, elements_displayed[elementName]);
             DisplayOverlay();
             NextImage();
+            UpdateChoice = true;
         }
 
         private void DisplayOverlay()
@@ -218,7 +238,7 @@ namespace FS_Helper
                     {
                         checkmark.Save(memory, ImageFormat.Png);
                         memory.Position = 0;
-                        BitmapImage bitmapImage = new BitmapImage();
+                        var bitmapImage = new BitmapImage();
                         bitmapImage.BeginInit();
                         bitmapImage.StreamSource = memory;
                         bitmapImage.CacheOption = BitmapCacheOption.OnLoad;

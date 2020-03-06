@@ -12,7 +12,6 @@ using System.Linq;
 
 namespace XnaFan.ImageComparison
 {
-
     /// <summary>
     /// A class with extensionmethods for comparing images
     /// </summary>
@@ -155,7 +154,7 @@ namespace XnaFan.ImageComparison
         {
             if (!File.Exists(filePath))
             {
-                throw new FileNotFoundException("File '" + filePath + "' not found!");
+                throw new FileNotFoundException($"File '{filePath}' not found!");
             }
             return true;
         }

@@ -11,8 +11,6 @@ namespace XnaFan.ImageComparison
 {
     public static class ExtensionMethods
     {
-
-
         //the font to use for the DifferenceImages
         private static readonly Font DefaultFont = new Font("Arial", 8);
 
