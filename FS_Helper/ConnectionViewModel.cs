@@ -26,7 +26,7 @@ namespace FS_Helper
             {
                 if (_status == value) return;
                 _status = value;
-                OnPropertyChanged("Status");
+                OnPropertyChanged(nameof(Status));
             }
         }
 

@@ -79,6 +79,7 @@
     <Compile Include="ImageComparison\Histogram.cs" />
     <Compile Include="ImageComparison\ImageTool.cs" />
     <Compile Include="ImageComparison\PathGrayscaleTupleComparer.cs" />
+    <Compile Include="Tools\MaskeEditorTools.cs" />
     <Compile Include="ReviewAlignments.xaml.cs">
       <DependentUpon>ReviewAlignments.xaml</DependentUpon>
     </Compile>
@@ -88,6 +89,8 @@
     <Compile Include="SelectDuplicate.xaml.cs">
       <DependentUpon>SelectDuplicate.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Tools\ArrangeImagePack.cs" />
+    <Compile Include="Tools\StartReviewAlignments.cs" />
     <Page Include="CBDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

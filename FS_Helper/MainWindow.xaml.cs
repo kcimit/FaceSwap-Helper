@@ -64,7 +64,7 @@ namespace FS_Helper
         {
             Close();
         }
-        
+
         private void MainWindow_OnClosing(object sender, CancelEventArgs e)
         {
             // Creating last open file
@@ -99,10 +99,10 @@ namespace FS_Helper
                 var suffix = name.Substring(name.Length - 2, 2);
                 if (!suffix[0].Equals('_')) continue;
                 var gen = suffix[1];
-                var newPath= Path.Combine(path, gen.ToString());
+                var newPath = Path.Combine(path, gen.ToString());
                 if (!Directory.Exists(newPath))
                     Directory.CreateDirectory(newPath);
-                var newName = Path.Combine(newPath, name.Substring(0, name.Length - 2)+f.Extension);
+                var newName = Path.Combine(newPath, name.Substring(0, name.Length - 2) + f.Extension);
                 File.Move(f.FullName, newName);
             }
 
@@ -130,7 +130,7 @@ namespace FS_Helper
                     var coreName = Path.Combine(path, f.Name);
                     if (File.Exists(coreName))
                     {
-                        var selectImage = new SelectDuplicate(coreName, name) {Owner = this};
+                        var selectImage = new SelectDuplicate(coreName, name) { Owner = this };
                         selectImage.ShowDialog();
                         if (selectImage.Aborted)
                         {
@@ -142,13 +142,13 @@ namespace FS_Helper
                         if (string.IsNullOrEmpty(choice)) continue;
                         if (!choice.Equals(name)) continue;
                         File.Delete(coreName);
-                        File.Move(name,coreName);
+                        File.Move(name, coreName);
                     }
                     else
                         File.Move(name, coreName);
                 }
                 var info2 = dirInfo.GetFiles("*.*");
-                if (info2.Length==0)
+                if (info2.Length == 0)
                     Directory.Delete(subDir);
             }
 
@@ -175,7 +175,7 @@ namespace FS_Helper
                 var alignedName = Path.Combine(pathSource, "aligned", $"{Path.GetFileNameWithoutExtension(f.Name)}.jpg");
                 if (File.Exists(alignedName)) continue;
                 file_list.Add(name);
-                
+
             }
             if (!file_list.Any())
             {
@@ -218,7 +218,7 @@ namespace FS_Helper
 
             var dirInfo = new DirectoryInfo(landmarks);
             var info = dirInfo.GetFiles("*.*");
-            if (info.Count()>0)
+            if (info.Count() > 0)
             {
                 var res = MessageBox.Show("There are files in landmarks folder. Do you want to remove them?", "Question", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
                 if (res != MessageBoxResult.Yes)
@@ -227,7 +227,7 @@ namespace FS_Helper
                 foreach (var f in info)
                     File.Delete(f.FullName);
             }
-            
+
             dirInfo = new DirectoryInfo(path);
             info = dirInfo.GetFiles("*_debug.*");
             foreach (var f in info)
@@ -294,7 +294,7 @@ namespace FS_Helper
             if (check.Count() > 0)
             {
                 var res = MessageBox.Show("Warning! Alignments with _ are found. It could be not yet renamed alignments after extract. Do you really want to remove them?", "Question", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
-                if (res== MessageBoxResult.No || res==MessageBoxResult.Cancel) return;
+                if (res == MessageBoxResult.No || res == MessageBoxResult.Cancel) return;
             }
             var alInfo = dirAlInfo.GetFiles("*.*");
 
@@ -389,232 +389,22 @@ namespace FS_Helper
 
         private void BtBackupOld_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(TbDir.Text))
-            {
-                MessageBox.Show("Select workspace directory first.", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                return;
-            }
-
-            var alignments = Path.Combine(TbDir.Text, _target, "aligned");
-
-            var dirAlInfo = new DirectoryInfo(alignments);
-            var alInfo = dirAlInfo.GetFiles("*.*");
-            if (alInfo.Count()==0)
-            {
-                MessageBox.Show("There are no files in aligned directory", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                return;
-            }
-            var creationDates = alInfo.Select(r => r.LastWriteTime).OrderBy(r => r).ToList();
-            var tupleDates = new List<Tuple<DateTime, DateTime>>();
-            var start_date = creationDates.First();
-            var end_date = creationDates.First();
-            foreach (var d in creationDates)
-            {
-                if ((d - end_date) < new TimeSpan(0, 1, 0))
-                {
-                    end_date = d;
-                    continue;
-                }
-                tupleDates.Add(new Tuple<DateTime, DateTime>(start_date, end_date));
-                start_date = d;
-                end_date = d;
-            }
-            var last_period = new Tuple<DateTime, DateTime>(start_date, end_date);
-            if (!tupleDates.Any() || (tupleDates.Last()!=last_period))
-                tupleDates.Add(last_period);
-            var choices = new Dictionary<string, Tuple<DateTime, DateTime>>();
-            tupleDates.Reverse();
-            foreach (var tdate in tupleDates)
-                choices.Add($"{tdate.Item1} - {tdate.Item2}", tdate);
-            var cbdialog = new CBDialog("Select date ranges", "Select date range of files to be kept in aligned folder for mask editor", choices.Keys.ToList());
-            cbdialog.ShowDialog();
-            if (!cbdialog.Selected) return;
-            var selectedDates = choices[cbdialog.SelectedItem];
-
-            // Preparing target folders
-            var aligned_backup = Path.Combine(TbDir.Text, _target, "aligned_backup");
-            if (!Directory.Exists(aligned_backup))
-                Directory.CreateDirectory(aligned_backup);
-
-            var dirInfo = new DirectoryInfo(aligned_backup);
-            var info = dirInfo.GetFiles("*.*");
-            if (info.Count() > 0)
-            {
-                var res = MessageBox.Show("There are files in aligned_backup folder. Do you want to remove them?", "Question", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
-                if (res != MessageBoxResult.Yes)
-                {
-                    MessageBox.Show($"Aborted!", "User aborted", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                    return;
-                }
-                foreach (var f in info)
-                    File.Delete(f.FullName);
-            }
-            var debug_backup = Path.Combine(TbDir.Text, _target, "debug_backup");
-            if (!Directory.Exists(debug_backup))
-                Directory.CreateDirectory(debug_backup);
-
-            var dirInfo_debug = new DirectoryInfo(debug_backup);
-            var info_debug = dirInfo_debug.GetFiles("*.*");
-            if (info_debug.Count() > 0)
-            {
-                var res = MessageBox.Show("There are files in debug_backup folder. Do you want to remove them?", "Question", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
-                if (res != MessageBoxResult.Yes)
-                {
-                    MessageBox.Show($"Aborted!", "User aborted", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                    return;
-                }
-                foreach (var f in info_debug)
-                    File.Delete(f.FullName);
-            }
-
-            // Moving files
-            var a_count = 0;
-            var d_count = 0;
-            foreach (var f in alInfo)
-            {
-                if (f.LastWriteTime >= selectedDates.Item1 && f.LastWriteTime <= selectedDates.Item2) continue;
-                var new_name = Path.Combine(aligned_backup, f.Name);
-                File.Move(f.FullName, new_name);
-                a_count++;
-                var source_name_debug = Path.Combine(TbDir.Text, _target, "aligned_debug", f.Name);
-                var new_name_debug = Path.Combine(debug_backup, f.Name);
-                File.Move(source_name_debug, new_name_debug);
-                d_count++;
-            }
-            MessageBox.Show($"Done! Moved {a_count} alignments and {d_count} debug alignments.", "Results", MessageBoxButton.OK, MessageBoxImage.Information);
+            Tools.BackupOld(TbDir.Text, _target);
         }
 
         private void BtMergeBackOld_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(TbDir.Text))
-            {
-                MessageBox.Show("Select workspace directory first.", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                return;
-            }
-
-            var aligned_backup = Path.Combine(TbDir.Text, _target, "aligned_backup");
-            if (!Directory.Exists(aligned_backup))
-            {
-                MessageBox.Show("aligned_backup folder does not exists. Aborting.", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                return;
-            }
-            var dirInfo = new DirectoryInfo(aligned_backup);
-            var info = dirInfo.GetFiles("*.*");
-
-            var debug_backup = Path.Combine(TbDir.Text, _target, "debug_backup");
-            if (!Directory.Exists(debug_backup))
-            {
-                MessageBox.Show("debug_backup folder does not exists. Aborting.", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                return;
-            }
-
-            var dirInfo_debug = new DirectoryInfo(debug_backup);
-            var info_debug = dirInfo_debug.GetFiles("*.*");
-
-            // Moving files
-            var a_count = 0;
-            var d_count = 0;
-            foreach (var f in info)
-            {
-                var new_name = Path.Combine(TbDir.Text, _target, "aligned", f.Name);
-                File.Move(f.FullName, new_name);
-                a_count++;
-            }
-            foreach (var f in info_debug)
-            { 
-                var new_name_debug = Path.Combine(TbDir.Text, _target, "aligned_debug", f.Name);
-                File.Move(f.FullName, new_name_debug);
-                d_count++;
-            }
-            MessageBox.Show($"Done! Moved {a_count} alignments and {d_count} debug alignments.", "Results", MessageBoxButton.OK, MessageBoxImage.Information);
+            Tools.MergeBackOld(TbDir.Text, _target);
         }
 
         private void BtReviewAlignments_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(TbDir.Text))
-            {
-                MessageBox.Show("Select workspace directory first.", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                return;
-            }
+            Tools.StartReviewAlignments(TbDir.Text, _target, this);
+        }
 
-            var path = Path.Combine(TbDir.Text, _target, "aligned");
-            var dirInfo = new DirectoryInfo(path);
-            if (!Directory.Exists(path))
-            {
-                MessageBox.Show("Aligned directory does not exist.", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                return;
-            }
-            var target_path = Path.Combine(TbDir.Text, _target, "aligned_reviewed");
-            if (!Directory.Exists(target_path)) Directory.CreateDirectory(target_path);
-
-            var info = dirInfo.GetFiles("*.*");
-            var pairs = new Dictionary<string, List<string>>();
-            foreach (var f in info)
-            {
-                var name = Path.GetFileNameWithoutExtension(f.FullName);
-                var suffix = name.Substring(name.Length - 2, 2);
-                if (!suffix[0].Equals('_')) continue;
-                
-                var fname = name.Substring(0, name.Length - 2) + f.Extension;
-
-                if (!pairs.ContainsKey(fname)) pairs.Add(fname, new List<string>());
-                pairs[fname].Add(Path.GetFileNameWithoutExtension(f.FullName) + f.Extension);
-            }
-            foreach (var item in pairs.Where(kvp => kvp.Value.Count<2).ToList())
-            {
-                pairs.Remove(item.Key);
-            }
-            if (pairs.Count == 0)
-            {
-                MessageBox.Show("No alignments with multiple faces found.", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                return;
-            }
-
-            var im = new ReviewAlignments(pairs,path) { Owner = this };
-            im.ShowDialog();
-            if (im.Aborted)
-            {
-                MessageBox.Show("Aborted.", "User aborted", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                return;
-            }
-            
-            int dcount = 0;
-            int rcount = 0;
-            var ar = im.AlignmentsReviewed;
-            foreach (var pair in pairs)
-            {
-                if (!ar.ContainsKey(pair.Key)) continue;
-                if (ar[pair.Key].Equals("stop"))
-                {
-                    foreach (var f in pair.Value)
-                        try
-                        {
-                            File.Delete(Path.Combine(path,f));
-                            dcount++;
-                        }
-                        catch { }
-                }
-                else
-                {
-                    foreach (var f in pair.Value)
-                    {
-                        if (f.Equals(ar[pair.Key]))
-                        {
-                            File.Move(Path.Combine(path, f), Path.Combine(target_path, pair.Key));
-                            rcount++;
-                        }
-                        else
-                            try
-                            {
-                                File.Delete(Path.Combine(path, f));
-                                dcount++;
-                            }
-                            catch { }
-                    }
-                }
-            }
-            MessageBox.Show($"{dcount} files deleted and {rcount} alignments reviewed in aligned_reviewed folder.", "Results", MessageBoxButton.OK, MessageBoxImage.Information);
-            im = null;
+        private void BtArrangeImagePack_OnClick(object sender, RoutedEventArgs e)
+        {
+            Tools.ArrangeImagePack(Cvm);
         }
     }
 }
