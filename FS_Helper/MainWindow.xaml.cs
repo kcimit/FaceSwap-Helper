@@ -406,5 +406,11 @@ namespace FS_Helper
         {
             Tools.ArrangeImagePack(Cvm);
         }
+
+        private void BtFindBrokenAlignments_OnClick(object sender, RoutedEventArgs e)
+        {
+            Tools.StartReviewBrokenAlignments(TbDir.Text, _target, this);
+        }
+
     }
 }

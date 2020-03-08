@@ -90,6 +90,10 @@
       <DependentUpon>SelectDuplicate.xaml</DependentUpon>
     </Compile>
     <Compile Include="Tools\ArrangeImagePack.cs" />
+    <Compile Include="Tools\ReviewBrokenAlignments.xaml.cs">
+      <DependentUpon>ReviewBrokenAlignments.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Tools\StartReviewBrokenAlignments.cs" />
     <Compile Include="Tools\StartReviewAlignments.cs" />
     <Page Include="CBDialog.xaml">
       <SubType>Designer</SubType>
@@ -118,6 +122,10 @@
     <Page Include="SelectDuplicate.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Tools\ReviewBrokenAlignments.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -170,6 +178,10 @@
     <Analyzer Include="..\packages\Microsoft.NetCore.Analyzers.2.9.8\analyzers\dotnet\cs\Microsoft.NetCore.CSharp.Analyzers.dll" />
     <Analyzer Include="..\packages\Microsoft.NetFramework.Analyzers.2.9.8\analyzers\dotnet\cs\Microsoft.NetFramework.Analyzers.dll" />
     <Analyzer Include="..\packages\Microsoft.NetFramework.Analyzers.2.9.8\analyzers\dotnet\cs\Microsoft.NetFramework.CSharp.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="broken.png" />
+    <Resource Include="prev_next.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
