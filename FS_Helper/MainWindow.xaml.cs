@@ -218,7 +218,7 @@ namespace FS_Helper
 
             var dirInfo = new DirectoryInfo(landmarks);
             var info = dirInfo.GetFiles("*.*");
-            if (info.Count() > 0)
+            if (info.Any())
             {
                 var res = MessageBox.Show("There are files in landmarks folder. Do you want to remove them?", "Question", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
                 if (res != MessageBoxResult.Yes)
@@ -291,7 +291,7 @@ namespace FS_Helper
 
             var dirAlInfo = new DirectoryInfo(alignments);
             var check = dirAlInfo.GetFiles("*_?.*");
-            if (check.Count() > 0)
+            if (check.Any())
             {
                 var res = MessageBox.Show("Warning! Alignments with _ are found. It could be not yet renamed alignments after extract. Do you really want to remove them?", "Question", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
                 if (res == MessageBoxResult.No || res == MessageBoxResult.Cancel) return;
@@ -412,5 +412,14 @@ namespace FS_Helper
             Tools.StartReviewBrokenAlignments(TbDir.Text, _target, this);
         }
 
+        private void BtDissimilar_Click(object sender, RoutedEventArgs e)
+        {
+            Tools.StartDissimilar(TbDir.Text, _target, Cvm);
+        }
+
+        private void BtCompareImages_Click(object sender, RoutedEventArgs e)
+        {
+            Tools.StartCompareImages(this);
+        }
     }
 }

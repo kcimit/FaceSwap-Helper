@@ -50,34 +50,49 @@ namespace FS_Helper
 
         private void ShowImage()
         {
-            // ... Create a new BitmapImage.
-            b1 = new BitmapImage();
-            b1.BeginInit();
-            b1.CacheOption = BitmapCacheOption.OnLoad;
-            b1.UriSource = new Uri(_files[current_image]);
-            b1.EndInit();
-            DImage.Source = b1;
-            tbFileName.Text = _files[current_image];
-
-            if (files_to_remove.Contains(_files[current_image]))
-                using (MemoryStream memory = new MemoryStream())
+            try
+            {
+                using (Stream BitmapStream = System.IO.File.Open(_files[current_image], System.IO.FileMode.Open))
                 {
-                    icon.Save(memory, ImageFormat.Png);
-                    memory.Position = 0;
-                    BitmapImage bitmapImage = new BitmapImage();
-                    bitmapImage.BeginInit();
-                    bitmapImage.StreamSource = memory;
-                    bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmapImage.EndInit();
-                    ThrashImage.Source = bitmapImage;
+                    System.Drawing.Image img = System.Drawing.Image.FromStream(BitmapStream);
+
+                    using (var bmp = new Bitmap(img))
+                    {
+                        var src = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, System.Windows.Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                        /*
+                        // ... Create a new BitmapImage.
+                        b1 = new BitmapImage();
+                        b1.BeginInit();
+                        b1.CacheOption = BitmapCacheOption.OnLoad;
+                        b1.StreamSource = BitmapStream;
+                        //b1.UriSource = new Uri(_files[current_image]);
+                        b1.EndInit();*/
+                        DImage.Source = src;
+                    }
                 }
-            else
-                ThrashImage.Source = null;
+                tbFileName.Text = _files[current_image];
+
+                if (files_to_remove.Contains(_files[current_image]))
+                    using (MemoryStream memory = new MemoryStream())
+                    {
+                        icon.Save(memory, ImageFormat.Png);
+                        memory.Position = 0;
+                        BitmapImage bitmapImage = new BitmapImage();
+                        bitmapImage.BeginInit();
+                        bitmapImage.StreamSource = memory;
+                        bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                        bitmapImage.EndInit();
+                        ThrashImage.Source = bitmapImage;
+                    }
+                else
+                    ThrashImage.Source = null;
+            }
+            catch { }
         }
 
         private void CloseDialog()
         {
-            b1.UriSource = null;
+            //b1.UriSource = null;
             DImage.Source = null;
             this.Close();
         }

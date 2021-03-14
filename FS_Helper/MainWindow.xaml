@@ -102,6 +102,7 @@
                 </Grid.RowDefinitions>
                 <Button x:Name="BtBackupOld" FontSize="12" FontWeight="Regular"  Grid.Column="0" Margin="5" Click="BtBackupOld_Click"  ToolTip="Keep only recent alignments for mask editor (backup others). This will move older files (program would decide what is the most recent batch) to a_all and d_all. After you can run mask editor only for recent">Keep only recent alignments for mask editor (backup others)</Button>
                 <Button x:Name="BtMergeBackOld" FontSize="12" FontWeight="Regular"  Grid.Column="1" Margin="5" Click="BtMergeBackOld_Click"  ToolTip="Copy back files in a_all and d_all to aligned and aligned_debug. To be executed after mask editor">Copy back older files after mask editor</Button>
+                <Button x:Name="BtDissimilar" FontSize="12" FontWeight="Regular"  Grid.Column="0" Grid.Row="1" Margin="5" Click="BtDissimilar_Click"  ToolTip="Create new folder with alignments having most dissimilar faces">Most dissimilar faces</Button>
             </Grid>
         </GroupBox>
         <GroupBox Grid.Row="11" Grid.ColumnSpan="4" Grid.RowSpan="2"  Margin="2" FontSize="14" FontWeight="Bold"  
@@ -139,6 +140,7 @@
                 <Button x:Name="BtConvertPngToJpg" FontSize="12" FontWeight="Regular"  Grid.Column="1" Margin="5" Click="BtConvertPngToJpg_OnClick" ToolTip="Converts all png to jpg in merged folder">Convert .PNG to .JPG in merged folder</Button>
                 <Button x:Name="BtConvertPngToJpgDst" FontSize="12" FontWeight="Regular"  Grid.Column="0" Margin="5" Click="BtConvertPngToJpgDst_OnClick" ToolTip="Converts all png frames from original clip to jpg">Convert .PNG to .JPG for original clip frames</Button>
                 <Button x:Name="BtArrangeImagePack" FontSize="12" FontWeight="Regular"  Grid.Column="0" Grid.Row="1" Margin="5" Click="BtArrangeImagePack_OnClick" ToolTip="Arrange image pack in several folders into one for dst or src">Arrange image pack in one folder</Button>
+                <Button x:Name="BtCompareImages" FontSize="12" FontWeight="Regular"  Grid.Column="1" Grid.Row="1" Margin="5" Click="BtCompareImages_Click"  ToolTip="Compare images from 2 folders">Compare images from two folders</Button>
             </Grid>
         </GroupBox>
 

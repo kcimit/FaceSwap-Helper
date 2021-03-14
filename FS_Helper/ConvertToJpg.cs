@@ -22,6 +22,50 @@ namespace FS_Helper
         public static void ConvertAll(string folder, ConnectionViewModel cvm)
         {
             _globalCount = 0;
+            _locker = new Mutex();
+
+            var numCores = Math.Min(Environment.ProcessorCount, 10);
+
+            var dirInfo = new DirectoryInfo(folder);
+            var alFiles = dirInfo.GetFiles("*.png", SearchOption.TopDirectoryOnly);
+            _allCount = alFiles.Length;
+
+            if (_allCount == 0)
+            {
+                MessageBox.Show("Nothing to convert. Aborting.");
+                return;
+            }
+            var tsk =Task.Factory.StartNew(() =>
+                    {
+                        Parallel.ForEach(alFiles, file =>
+                        {
+                            var encoder = System.Drawing.Imaging.Encoder.Quality;
+                            var encoderParameters = new EncoderParameters(1) { Param = { [0] = new EncoderParameter(encoder, 85L) } };
+
+                            var jpgEncoder = GetEncoder(ImageFormat.Jpeg);
+                            var extension = System.IO.Path.GetExtension(file.FullName);
+                            if (extension != ".png") return;
+                            var name = System.IO.Path.GetFileNameWithoutExtension(file.FullName);
+                            var path = System.IO.Path.GetDirectoryName(file.FullName);
+                            lock (_locker)
+                            {
+                                cvm.Status = $"Converting {++_globalCount}/{_allCount}";
+                            }
+
+                            var png = Image.FromFile(file.FullName);
+                            png.Save($@"{path}\{name}.jpg", jpgEncoder, encoderParameters);
+                            png.Dispose();
+                            File.Delete(file.FullName);
+                        });
+                    });
+            while (!tsk.IsCompleted)
+                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
+            cvm.Status = "Ready.";
+        }
+
+        public static void ConvertAll_Old(string folder, ConnectionViewModel cvm)
+        {
+            _globalCount = 0;
             _locker=new Mutex();
 
             var numCores = Math.Min(Environment.ProcessorCount, 10);
