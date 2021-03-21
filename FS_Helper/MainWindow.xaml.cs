@@ -421,5 +421,10 @@ namespace FS_Helper
         {
             Tools.StartCompareImages(this);
         }
+
+        private void BtGroupFilesBackToSourceFolder_Click(object sender, RoutedEventArgs e)
+        {
+            Tools.ReCreateImagePack(Cvm);
+        }
     }
 }

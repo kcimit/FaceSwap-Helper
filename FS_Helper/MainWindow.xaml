@@ -136,11 +136,13 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Button x:Name="BtConvertPngToJpg" FontSize="12" FontWeight="Regular"  Grid.Column="1" Margin="5" Click="BtConvertPngToJpg_OnClick" ToolTip="Converts all png to jpg in merged folder">Convert .PNG to .JPG in merged folder</Button>
                 <Button x:Name="BtConvertPngToJpgDst" FontSize="12" FontWeight="Regular"  Grid.Column="0" Margin="5" Click="BtConvertPngToJpgDst_OnClick" ToolTip="Converts all png frames from original clip to jpg">Convert .PNG to .JPG for original clip frames</Button>
                 <Button x:Name="BtArrangeImagePack" FontSize="12" FontWeight="Regular"  Grid.Column="0" Grid.Row="1" Margin="5" Click="BtArrangeImagePack_OnClick" ToolTip="Arrange image pack in several folders into one for dst or src">Arrange image pack in one folder</Button>
                 <Button x:Name="BtCompareImages" FontSize="12" FontWeight="Regular"  Grid.Column="1" Grid.Row="1" Margin="5" Click="BtCompareImages_Click"  ToolTip="Compare images from 2 folders">Compare images from two folders</Button>
+                <Button x:Name="BtGroupFilesBackToSourceFolder" FontSize="12" FontWeight="Regular"  Grid.Column="0" Grid.Row="2" Margin="5" Click="BtGroupFilesBackToSourceFolder_Click"  ToolTip="Compare files in arranged pictures folder with multiple source folder and try recreate source folders structure">Recreate source folder structure</Button>
             </Grid>
         </GroupBox>
 

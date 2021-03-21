@@ -102,6 +102,7 @@
     <Compile Include="ImageComparison\Histogram.cs" />
     <Compile Include="ImageComparison\ImageTool.cs" />
     <Compile Include="ImageComparison\PathGrayscaleTupleComparer.cs" />
+    <Compile Include="Tools\RecreateImagePack.cs" />
     <Compile Include="Tools\MaskeEditorTools.cs" />
     <Compile Include="ReviewAlignments.xaml.cs">
       <DependentUpon>ReviewAlignments.xaml</DependentUpon>
