@@ -290,6 +290,7 @@ namespace FS_Helper
             var alignments = Path.Combine(TbDir.Text, _target, "aligned");
 
             var dirAlInfo = new DirectoryInfo(alignments);
+
             var check = dirAlInfo.GetFiles("*_?.*");
             if (check.Any())
             {
@@ -425,6 +426,11 @@ namespace FS_Helper
         private void BtGroupFilesBackToSourceFolder_Click(object sender, RoutedEventArgs e)
         {
             Tools.ReCreateImagePack(Cvm);
+        }
+
+        private void BtFindIdentical_Click(object sender, RoutedEventArgs e)
+        {
+            Tools.StartFindIdenticalImages(this);
         }
     }
 }

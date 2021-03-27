@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Services;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -284,30 +285,17 @@ namespace FS_Helper
     }
 
 
-    public class AlignmentsViewModel : INotifyPropertyChanged
+    public class AlignmentsViewModel : ViewModelBase
     {
-        private string _status, _current_alignment;
+        private string _current_alignment;
         private int _threshold;
         ReviewBrokenAlignments _main;
-        static SynchronizationContext _uiSynchronizationContext;
 
         public AlignmentsViewModel (ReviewBrokenAlignments main)
         {
             _threshold = 80;
-            _uiSynchronizationContext = SynchronizationContext.Current;
+            uiSynchronizationContext = SynchronizationContext.Current;
             _main = main;
-        }
-
-
-        public string Status
-        {
-            get => _status;
-            set
-            {
-                if (_status == value) return;
-                _status = value;
-                OnPropertyChanged(nameof(Status));
-            }
         }
 
         public string CurrentAlignment
@@ -331,14 +319,5 @@ namespace FS_Helper
                 _main.UpdateThreshold();
             }
         }
-
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            _uiSynchronizationContext.Post(
-                 o => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName))
-                , null
-              );
-        }
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

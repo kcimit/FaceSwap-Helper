@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Services;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
@@ -102,13 +103,32 @@ namespace XnaFan.ImageComparison
             return pathsGroupedByDuplicates;
         }
 
+        public static List<List<string>> GetDuplicateImages(IEnumerable<string> pathsOfPossibleDuplicateImages, ViewModelBase vm)
+        {
+            var imagePathsAndGrayValues = GetSortedGrayscaleValues(pathsOfPossibleDuplicateImages, vm);
+            vm.Status = "Creating duplicate groups";
+            var duplicateGroups = GetDuplicateGroups(imagePathsAndGrayValues);
+
+            var pathsGroupedByDuplicates = new List<List<string>>();
+            foreach (var list in duplicateGroups)
+            {
+                pathsGroupedByDuplicates.Add(list.Select(tuple => tuple.Item1).ToList());
+            }
+
+            return pathsGroupedByDuplicates;
+        }
+
         #region Helpermethods
 
-        private static List<Tuple<string, byte[,]>> GetSortedGrayscaleValues(IEnumerable<string> pathsOfPossibleDuplicateImages)
+        private static List<Tuple<string, byte[,]>> GetSortedGrayscaleValues(IEnumerable<string> pathsOfPossibleDuplicateImages, ViewModelBase vm=null)
         {
             var imagePathsAndGrayValues = new List<Tuple<string, byte[,]>>();
+            var cnt = 0;
             foreach (var imagePath in pathsOfPossibleDuplicateImages)
             {
+                if (vm != null)
+                    vm.Status = $"Getting sorted grayscal values {cnt++}/{pathsOfPossibleDuplicateImages.Count()}";
+
                 using (Image image = Image.FromFile(imagePath))
                 {
                     byte[,] grayValues = image.GetGrayScaleValues();

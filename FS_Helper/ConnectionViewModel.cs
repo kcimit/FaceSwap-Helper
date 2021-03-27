@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Services;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -8,35 +9,11 @@ using System.Threading.Tasks;
 
 namespace FS_Helper
 {
-    public class ConnectionViewModel : INotifyPropertyChanged
+    public class ConnectionViewModel : ViewModelBase
     {
-        private string _status;
-
-        static SynchronizationContext _uiSynchronizationContext;
-
         public ConnectionViewModel()
         {
-            _uiSynchronizationContext = SynchronizationContext.Current;
+            uiSynchronizationContext = SynchronizationContext.Current;
         }
-
-        public string Status
-        {
-            get => _status;
-            set
-            {
-                if (_status == value) return;
-                _status = value;
-                OnPropertyChanged(nameof(Status));
-            }
-        }
-
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            _uiSynchronizationContext.Post(
-                 o => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName))
-                , null
-              );
-        }
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

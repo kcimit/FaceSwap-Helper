@@ -104,13 +104,13 @@
     <Compile Include="ImageComparison\PathGrayscaleTupleComparer.cs" />
     <Compile Include="Tools\RecreateImagePack.cs" />
     <Compile Include="Tools\MaskeEditorTools.cs" />
-    <Compile Include="ReviewAlignments.xaml.cs">
+    <Compile Include="Tools\ReviewAlignments.xaml.cs">
       <DependentUpon>ReviewAlignments.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ShowDeletedAlignmentSource.xaml.cs">
+    <Compile Include="Tools\ShowDeletedAlignmentSource.xaml.cs">
       <DependentUpon>ShowDeletedAlignmentSource.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SelectDuplicate.xaml.cs">
+    <Compile Include="Tools\SelectDuplicate.xaml.cs">
       <DependentUpon>SelectDuplicate.xaml</DependentUpon>
     </Compile>
     <Compile Include="Tools\ArrangeImagePack.cs" />
@@ -118,12 +118,17 @@
     <Compile Include="Tools\CompareImages.xaml.cs">
       <DependentUpon>CompareImages.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Tools\FindIdentical.xaml.cs">
+      <DependentUpon>FindIdentical.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Tools\ReviewBrokenAlignments.xaml.cs">
       <DependentUpon>ReviewBrokenAlignments.xaml</DependentUpon>
     </Compile>
     <Compile Include="Tools\StartCompareImages.cs" />
+    <Compile Include="Tools\StartFindIdenticalImages.cs" />
     <Compile Include="Tools\StartReviewBrokenAlignments.cs" />
     <Compile Include="Tools\StartReviewAlignments.cs" />
+    <Compile Include="ViewModelService.cs" />
     <Page Include="CBDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -140,19 +145,23 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="ReviewAlignments.xaml">
+    <Page Include="Tools\ReviewAlignments.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="ShowDeletedAlignmentSource.xaml">
+    <Page Include="Tools\ShowDeletedAlignmentSource.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="SelectDuplicate.xaml">
+    <Page Include="Tools\SelectDuplicate.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Tools\CompareImages.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Tools\FindIdentical.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
