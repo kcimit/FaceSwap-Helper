@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FS_Helper"
         mc:Ignorable="d"
-        Title="Face Swap Helper" MinHeight="700" MinWidth="800" SizeToContent="WidthAndHeight" Loaded="Window_Loaded" Closing="MainWindow_OnClosing" Icon="app.ico">
+        Title="Face Swap Helper" MinHeight="700" MinWidth="740" SizeToContent="WidthAndHeight" Loaded="Window_Loaded" Closing="MainWindow_OnClosing" Icon="app.ico">
     <!-- <local:DpiDecorator> -->
         <Grid>
         <Grid.RowDefinitions>
@@ -55,17 +55,18 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*" MinHeight="30"/>
+                    <RowDefinition Height="*" MinHeight="30"/>
+                    <RowDefinition Height="*" MinHeight="30"/>
+                    <RowDefinition Height="*" MinHeight="30"/>
                 </Grid.RowDefinitions>
                 <Button x:Name="BtArrangeAfterExtract" FontSize="12" FontWeight="Regular" Grid.Row="0" Margin="5" Click="BtArrangeAfterExtract_OnClick" ToolTip="Run it after the first data_* extract faces DLIB all GPU +manual fix">Arrange faces after extract into separate directories</Button>
                 <Button x:Name="BtMergeAfterExtract" FontSize="12" FontWeight="Regular" Grid.Row="0" Grid.Column="1" Margin="5" Click="BtMergeAfterExtract_OnClick" ToolTip="Run it to merge all faces into aligned folder after manual cleaning from unwanted faces of each sub-directory with faces _*">Merge back separate directories into one</Button>
-                <Button x:Name="BtReviewAlignments" FontSize="12" FontWeight="Regular"  Grid.Row="1" Grid.Column="0" Margin="5" Click="BtReviewAlignments_Click"  ToolTip="Review extracted alignments with multiple faces">Review alignments with multiple faces</Button>
+                <Button x:Name="BtReviewMultipleFacesAlignments" FontSize="12" FontWeight="Regular"  Grid.Row="1" Grid.Column="0" Margin="5" Click="BtReviewMultipleFacesAlignments_Click"  ToolTip="Review extracted alignments with multiple faces">Review alignments with multiple faces</Button>
                 <Button x:Name="BtReviewDeletedAlignments" FontSize="12" FontWeight="Regular"  Grid.Row="1" Grid.Column="1" Margin="5" Click="BtReviewDeletedAlignments_OnClick" ToolTip="If some unwanted alignments have been removed, run it to check whether source file itself is problematic and can be removed">Review source files for deleted alignments</Button>
 
                 <Button x:Name="BtFindBroken" FontSize="12" FontWeight="Regular"  Grid.Row="2" Grid.Column="0" Margin="5" Click="BtFindBrokenAlignments_OnClick" ToolTip="Review broken alignments significantly different from sequence">Review broken alignments significantly different from sequence</Button>
+                <Button x:Name="BtFindIdenticalBySizeAndShortName" FontSize="12" FontWeight="Regular"  Grid.Row="2" Grid.Column="1" Margin="5" Click="BtFindIdenticalBySizeAndShortName_Click"  ToolTip="Find Identical By Size And Short Name">Find Identical By Size And Short Name</Button>
             </Grid>
         </GroupBox>
         <GroupBox Grid.Row="7" Grid.ColumnSpan="4" Margin="2" Grid.RowSpan="2" FontSize="14" FontWeight="Bold"  
@@ -79,8 +80,8 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*" MinHeight="30"/>
+                    <RowDefinition Height="*" MinHeight="30"/>
                 </Grid.RowDefinitions>
                 <Button x:Name="BtArrangeDebugLandmarks" FontSize="12" FontWeight="Regular" Grid.Row="0" Grid.Column="0" Margin="5" Click="BtArrangeDebugLandmarks_OnClick" ToolTip="Run it after the script 'other) data_* util add landmarks debug images' to move landmarks into separate folder for subsequent cleaning">Arrange debug landmarks into landmarks directory</Button>
                 <Button x:Name="BtRemoveDisregardedAlignments" FontSize="12" FontWeight="Regular"  Grid.Row="0" Grid.Column="1" Margin="5" Click="BtRemoveDisregardedAlignments_OnClick" ToolTip="Removing alignments having their landmarks disregarded manually by deleting landmark from landmarks folder">Remove alignments with disregarded landmarks</Button>
@@ -97,8 +98,8 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*" MinHeight="30"/>
+                    <RowDefinition Height="*" MinHeight="30"/>
                 </Grid.RowDefinitions>
                 <Button x:Name="BtBackupOld" FontSize="12" FontWeight="Regular"  Grid.Column="0" Margin="5" Click="BtBackupOld_Click"  ToolTip="Keep only recent alignments for mask editor (backup others). This will move older files (program would decide what is the most recent batch) to a_all and d_all. After you can run mask editor only for recent">Keep only recent alignments for mask editor (backup others)</Button>
                 <Button x:Name="BtMergeBackOld" FontSize="12" FontWeight="Regular"  Grid.Column="1" Margin="5" Click="BtMergeBackOld_Click"  ToolTip="Copy back files in a_all and d_all to aligned and aligned_debug. To be executed after mask editor">Copy back older files after mask editor</Button>
@@ -116,8 +117,8 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*" MinHeight="30"/>
+                    <RowDefinition Height="*" MinHeight="30"/>
                 </Grid.RowDefinitions>
                 <Button x:Name="BtRemoveDebugImagesWithNoAlignments" FontSize="12" FontWeight="Regular"  Grid.Column="0" Margin="5" Click="BtRemoveDebugImagesWithNoAlignments_OnClick" ToolTip="Removing debug files from aligned_debug not having alignments in aligned folder. This is to enable re-extract manually alignments by running the script 'data_* extract faces MANUAL RE-EXTRACT DELETED RESULTS DEBUG'">Remove debug images with no alignments</Button>
                 <Button x:Name="BtRenameReExtractedAlignments" FontSize="12" FontWeight="Regular"  Grid.Column="1" Margin="5" Click="BtRenameReExtractedAlignments_OnClick" ToolTip="Just renames *_0.* files to *.* normally to be done after the script 'data_* extract faces MANUAL RE-EXTRACT DELETED RESULTS DEBUG'">Rename re-extracted alignments (*__0.* to *.*)</Button>
@@ -134,16 +135,21 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*" MinHeight="30"/>
+                    <RowDefinition Height="*" MinHeight="30"/>
+                    <RowDefinition Height="*" MinHeight="30"/>
+                    <RowDefinition Height="*" MinHeight="30"/>
+                    <RowDefinition Height="*" MinHeight="30"/>
                 </Grid.RowDefinitions>
                 <Button x:Name="BtConvertPngToJpg" FontSize="12" FontWeight="Regular"  Grid.Column="1" Margin="5" Click="BtConvertPngToJpg_OnClick" ToolTip="Converts all png to jpg in merged folder">Convert .PNG to .JPG in merged folder</Button>
                 <Button x:Name="BtConvertPngToJpgDst" FontSize="12" FontWeight="Regular"  Grid.Column="0" Margin="5" Click="BtConvertPngToJpgDst_OnClick" ToolTip="Converts all png frames from original clip to jpg">Convert .PNG to .JPG for original clip frames</Button>
                 <Button x:Name="BtArrangeImagePack" FontSize="12" FontWeight="Regular"  Grid.Column="0" Grid.Row="1" Margin="5" Click="BtArrangeImagePack_OnClick" ToolTip="Arrange image pack in several folders into one for dst or src">Arrange image pack in one folder</Button>
                 <Button x:Name="BtCompareImages" FontSize="12" FontWeight="Regular"  Grid.Column="1" Grid.Row="1" Margin="5" Click="BtCompareImages_Click"  ToolTip="Compare images from 2 folders">Compare images from two folders</Button>
-                <Button x:Name="BtGroupFilesBackToSourceFolder" FontSize="12" FontWeight="Regular"  Grid.Column="0" Grid.Row="2" Margin="5" Click="BtGroupFilesBackToSourceFolder_Click"  ToolTip="Compare files in arranged pictures folder with multiple source folder and try recreate source folders structure">Recreate source folder structure</Button>
+                <Button x:Name="BtGroupFilesBackToSourceFolder" FontSize="12" FontWeight="Regular"  Grid.Column="0" Grid.Row="2" Margin="5" Click="BtGroupFilesBackToSourceFolder_Click"  ToolTip="Recreate source folder structure">Recreate source folder structure</Button>
+                <Button x:Name="BtGroupFilesBackToSourceFolder2" FontSize="12" FontWeight="Regular"  Grid.Column="0" Grid.Row="3" Margin="5" Click="BtGroupFilesBackToSourceFolder2_Click"  ToolTip="Recreate source folder structure">Recreate source folder structure (Favorites priv)</Button>
+                <Button x:Name="BtRenameFolder" FontSize="12" FontWeight="Regular"  Grid.Column="0" Grid.Row="4" Margin="5" Click="BtRenameFolder_Click"  ToolTip="Test function to rename multiple folders">TEST rename folder (get the date)</Button>
                 <Button x:Name="BtFindIdentical" FontSize="12" FontWeight="Regular"  Grid.Column="1" Grid.Row="2" Margin="5" Click="BtFindIdentical_Click"  ToolTip="Find identical pictures in folder">Find identical pictures</Button>
+                <Button x:Name="BtCategorizeMerged" FontSize="12" FontWeight="Regular"  Grid.Column="1" Grid.Row="3" Margin="5" Click="BtCategorizeMerged_Click"  ToolTip="Categorize merged pictures - delete, segment or re-extract">Categorize merged</Button>
             </Grid>
         </GroupBox>
 

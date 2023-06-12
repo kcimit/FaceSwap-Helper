@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:FS_Helper"
         mc:Ignorable="d"
         Title="Compare images" SizeToContent="WidthAndHeight"  MinWidth="700" WindowStartupLocation="CenterOwner" ContentRendered="Window_ContentRendered" KeyDown="Window_KeyDown" >
+    
     <Window.Resources>
         <Storyboard x:Key="AnimateFlicker">
             <DoubleAnimation Storyboard.TargetProperty="Opacity"
@@ -28,14 +29,14 @@
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="40"/>
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
       <!--  <Rectangle x:Name="Rect_0" Width="270px" Height="270px" Grid.Row="0" Stroke="Black" StrokeThickness="2" Grid.Column="0" HorizontalAlignment="Left" Margin="5" Stretch="Uniform" VerticalAlignment="Top">
@@ -45,46 +46,25 @@
                 </EventTrigger>
             </Rectangle.Triggers>
         </Rectangle> -->
-        <Image x:Name="DImage_0"  Width="Auto" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" Margin="10" Stretch="Uniform" VerticalAlignment="Top">
-            <Image.Triggers>
-                <EventTrigger RoutedEvent="MouseDown">
-                    <BeginStoryboard Name="Flicker" Storyboard="{StaticResource AnimateFlicker}" />
-                </EventTrigger>
-                <EventTrigger RoutedEvent="MouseUp">
-                    <RemoveStoryboard BeginStoryboardName="Flicker"  />
-                </EventTrigger>
-            </Image.Triggers>
-        </Image>
-        <Image x:Name="DImage_1" Width="Auto"  Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Margin="10" Stretch="Uniform" VerticalAlignment="Top" >
-            <Image.Triggers>
-                <EventTrigger RoutedEvent="MouseDown">
-                    <BeginStoryboard Name="Flicker1" Storyboard="{StaticResource AnimateFlicker}" />
-                </EventTrigger>
-                <EventTrigger RoutedEvent="MouseUp">
-                    <RemoveStoryboard BeginStoryboardName="Flicker1"  />
-                </EventTrigger>
-            </Image.Triggers>
-        </Image>
-        <Image x:Name="DImage_2" Width="Auto"  Grid.Row="0" Grid.Column="2" HorizontalAlignment="Stretch" Margin="10" Stretch="Uniform" VerticalAlignment="Top" >
-            <Image.Triggers>
-                <EventTrigger RoutedEvent="MouseDown">
-                    <BeginStoryboard Name="Flicker2" Storyboard="{StaticResource AnimateFlicker}" />
-                </EventTrigger>
-                <EventTrigger RoutedEvent="MouseUp">
-                    <RemoveStoryboard BeginStoryboardName="Flicker2"  />
-                </EventTrigger>
-            </Image.Triggers>
-        </Image>
-        <Grid Grid.Column="0" Grid.Row="1">
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Path0}" TextWrapping="Wrap" />
+        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Path1}" TextWrapping="Wrap" />
+
+        <local:ZoomBorder x:Name="brd1" ClipToBounds="True" Background="Gray" Grid.Row="1" Grid.Column="0" ImageTranslateTransform="{Binding Image0TranslateTransform, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ImageScaleTransform="{Binding Image0ScaleTransform, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <Image Source="{Binding Image0}"  Width="Auto" HorizontalAlignment="Stretch" Margin="10" Stretch="Uniform" VerticalAlignment="Top"/>
+        </local:ZoomBorder>
+        <local:ZoomBorder x:Name="brd2" ClipToBounds="True" Background="Gray" Grid.Row="1" Grid.Column="1" ImageTranslateTransform="{Binding Image1TranslateTransform, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ImageScaleTransform="{Binding Image0ScaleTransform, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <Image Source="{Binding Image1}"  Width="Auto" HorizontalAlignment="Stretch" Margin="10" Stretch="Uniform" VerticalAlignment="Top"/>
+        </local:ZoomBorder>
+
+        <Grid Grid.Column="0" Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Button x:Name="BtPrev" Margin="5" FontSize="16" Grid.Column="0" Height="40" Click="BtPrev_Click">Previous</Button>
-            <Button x:Name="BtNext" Margin="5" FontSize="16" Grid.Column="1" Height="40" Click="BtNext_Click">Next</Button>
+            <Button x:Name="BtPrev" Margin="5" FontSize="16" Grid.Column="0" Height="40" Command="{Binding PrevImageCommand}">Previous</Button>
+            <Button x:Name="BtNext" Margin="5" FontSize="16" Grid.Column="1" Height="40" Command="{Binding NextImageCommand}">Next</Button>
         </Grid>
-        <TextBlock x:Name="tbFileName" Text="NoFile" Grid.Row="1" Grid.Column="1" Margin="5" VerticalAlignment="Center"/>
-        <TextBlock x:Name="tbRemoveCount" Text="NoFile" Grid.Row="2" Grid.Column="1" Margin="5" VerticalAlignment="Center"/>
-        <Button x:Name="BtClose" Margin="5" VerticalAlignment="Center" FontSize="18" Grid.Row="2" Grid.Column="2" Height="40" Click="BtClose_Click">Close</Button>
+        <TextBlock x:Name="tbFileName" Text="{Binding FileName}" Grid.Row="2" Grid.Column="1" Margin="5" VerticalAlignment="Center"/>
+        <Button x:Name="BtClose" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="18" Grid.Row="3" Grid.Column="2" Width="80" Height="40" Click="BtClose_Click">Close</Button>
     </Grid>
 </Window>

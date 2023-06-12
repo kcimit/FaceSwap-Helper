@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using Path = System.IO.Path;
@@ -15,14 +17,17 @@ namespace FS_Helper
     public partial class MainWindow
     {
         private string _target;
-        public ConnectionViewModel Cvm;
-
+        ConnectionViewModel Cvm;
+        CancellationTokenSource cs;
+        CancellationToken cancellationToken;
         public MainWindow()
         {
             InitializeComponent();
             _target = "data_dst";
             Cvm = new ConnectionViewModel();
             DataContext = Cvm;
+            cs= new CancellationTokenSource();
+            cancellationToken = cs.Token;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -39,11 +44,14 @@ namespace FS_Helper
                         using (var reader = new StreamReader(fs))
                         {
                             TbDir.Text = reader.ReadLine() ?? "";
+                            Tools.CompareFolder1=reader.ReadLine() ?? "";
+                            Tools.CompareFolder2 = reader.ReadLine() ?? "";
                         }
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Debug.WriteLine(ex.Message);
                     // ignored
                 }
             }
@@ -67,6 +75,7 @@ namespace FS_Helper
 
         private void MainWindow_OnClosing(object sender, CancelEventArgs e)
         {
+            cs.Cancel();
             // Creating last open file
             if (string.IsNullOrEmpty(TbDir.Text)) return;
             try
@@ -76,6 +85,8 @@ namespace FS_Helper
                     using (var writer = new StreamWriter(fs))
                     {
                         writer.WriteLine(TbDir.Text);
+                        writer.WriteLine(Tools.CompareFolder1);
+                        writer.WriteLine(Tools.CompareFolder2);
                     }
                 }
             }
@@ -97,16 +108,19 @@ namespace FS_Helper
             {
                 var name = Path.GetFileNameWithoutExtension(f.FullName);
                 var suffix = name.Substring(name.Length - 2, 2);
-                if (!suffix[0].Equals('_')) continue;
+                if (!suffix[0].Equals('_'))
+                    continue;
+
                 var gen = suffix[1];
                 var newPath = Path.Combine(path, gen.ToString());
                 if (!Directory.Exists(newPath))
                     Directory.CreateDirectory(newPath);
-                var newName = Path.Combine(newPath, name.Substring(0, name.Length - 2) + f.Extension);
+
+                //var newName = Path.Combine(newPath, name.Substring(0, name.Length - 2) + f.Extension);
+                var newName = Path.Combine(newPath, name + f.Extension);
                 File.Move(f.FullName, newName);
             }
-
-            MessageBox.Show($"Done!", "Results", MessageBoxButton.OK, MessageBoxImage.Information);
+            Cvm.Status = "Arranging is complete.";
         }
 
         private void BtMergeAfterExtract_OnClick(object sender, RoutedEventArgs e)
@@ -151,56 +165,13 @@ namespace FS_Helper
                 if (info2.Length == 0)
                     Directory.Delete(subDir);
             }
-
-            MessageBox.Show($"Done!", "Results", MessageBoxButton.OK, MessageBoxImage.Information);
+            Cvm.Status = "Merging is complete.";
         }
 
         private void BtReviewDeletedAlignments_OnClick(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(TbDir.Text))
-            {
-                MessageBox.Show("Select workspace directory first.", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                return;
-            }
-
-            var pathSource = Path.Combine(TbDir.Text, _target);
-            var dirInfo = new DirectoryInfo(pathSource);
-            var info = dirInfo.GetFiles("*.*");
-            //var is_png = info.Count(r => r.Extension.Equals("png")) >
-            //             info.Count(r => r.Extension.Equals("jpg"));
-            var file_list = new List<string>();
-            foreach (var f in info.Where(r => (new string[] { ".png", ".jpg", ".jpeg" }).Contains(r.Extension)))
-            {
-                var name = f.FullName;
-                var alignedName = Path.Combine(pathSource, "aligned", $"{Path.GetFileNameWithoutExtension(f.Name)}.jpg");
-                if (File.Exists(alignedName)) continue;
-                file_list.Add(name);
-
-            }
-            if (!file_list.Any())
-            {
-                MessageBox.Show("Nothing to remove.");
-                return;
-            }
-            var im = new ShowDeletedAlignmentSource(file_list) { Owner = this };
+            var im = new ShowDeletedAlignmentSource(TbDir.Text, _target) { Owner = this };
             im.ShowDialog();
-            if (im.Aborted)
-            {
-                MessageBox.Show($"Aborted!", "User aborted", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                return;
-            }
-            int dcount = 0;
-
-            foreach (var f in im.FilesToRemove)
-                try
-                {
-                    File.Delete(f);
-                    dcount++;
-                }
-                catch { }
-
-            MessageBox.Show($"{dcount} files deleted.", "Results", MessageBoxButton.OK, MessageBoxImage.Information);
-            im = null;
         }
 
         private void BtArrangeDebugLandmarks_OnClick(object sender, RoutedEventArgs e)
@@ -220,12 +191,13 @@ namespace FS_Helper
             var info = dirInfo.GetFiles("*.*");
             if (info.Any())
             {
-                var res = MessageBox.Show("There are files in landmarks folder. Do you want to remove them?", "Question", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
-                if (res != MessageBoxResult.Yes)
+                var res = MessageBox.Show("There are files in landmarks folder. Do you want to remove them? Select 'No' to keep them.", "Question", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+                if (res == MessageBoxResult.Cancel)
                     return;
 
-                foreach (var f in info)
-                    File.Delete(f.FullName);
+                if (res == MessageBoxResult.Yes) 
+                    foreach (var f in info)
+                        File.Delete(f.FullName);
             }
 
             dirInfo = new DirectoryInfo(path);
@@ -237,7 +209,7 @@ namespace FS_Helper
                 var newName = Path.Combine(landmarks, name);
                 File.Move(f.FullName, newName);
             }
-
+            
             MessageBox.Show($"Done!", "Results", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
@@ -322,7 +294,7 @@ namespace FS_Helper
                     foreach (var f in files_to_delete)
                         File.Delete(f);
 
-                    MessageBox.Show($"Removed {files_to_delete.Count()} files. Done!", "Results", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show($"Removed {files_to_delete.Count} files. Done!", "Results", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
         }
@@ -371,8 +343,7 @@ namespace FS_Helper
             }
 
             var merged = Path.Combine(TbDir.Text, _target, "merged");
-            ConvertToJpg.ConvertAll(merged, Cvm);
-            MessageBox.Show($"Done!", "Results", MessageBoxButton.OK, MessageBoxImage.Information);
+            ConvertToJpg.ConvertAll(merged, Cvm, cancellationToken);
         }
 
         private void BtConvertPngToJpgDst_OnClick(object sender, RoutedEventArgs e)
@@ -384,8 +355,7 @@ namespace FS_Helper
             }
 
             var original = Path.Combine(TbDir.Text, _target);
-            ConvertToJpg.ConvertAll(original, Cvm);
-            MessageBox.Show($"Done!", "Results", MessageBoxButton.OK, MessageBoxImage.Information);
+            ConvertToJpg.ConvertAll(original, Cvm, cancellationToken);
         }
 
         private void BtBackupOld_Click(object sender, RoutedEventArgs e)
@@ -398,9 +368,10 @@ namespace FS_Helper
             Tools.MergeBackOld(TbDir.Text, _target);
         }
 
-        private void BtReviewAlignments_Click(object sender, RoutedEventArgs e)
+        private void BtReviewMultipleFacesAlignments_Click(object sender, RoutedEventArgs e)
         {
-            Tools.StartReviewAlignments(TbDir.Text, _target, this);
+            var im = new ReviewAlignments(TbDir.Text, _target) { Owner = this };
+            im.ShowDialog();
         }
 
         private void BtArrangeImagePack_OnClick(object sender, RoutedEventArgs e)
@@ -425,12 +396,44 @@ namespace FS_Helper
 
         private void BtGroupFilesBackToSourceFolder_Click(object sender, RoutedEventArgs e)
         {
-            Tools.ReCreateImagePack(Cvm);
+            var res = WPFCustomMessageBox.CustomMessageBox.ShowYesNoCancel("Do you want to recreate from source image pack (Yes) or arrange similar names images into different folders (No)?", "Question", "Recreate", "Arrange similar","Cancel", MessageBoxImage.Question );
+            if (res ==  MessageBoxResult.Yes)
+                Tools.ReCreateImagePack(Cvm);
+            if (res == MessageBoxResult.No)
+                Tools.ArrangeIntoFolders(Cvm);
+        }
+
+        private void BtGroupFilesBackToSourceFolder2_Click(object sender, RoutedEventArgs e)
+        {
+            Tools.ReNameFavorites(Cvm);
         }
 
         private void BtFindIdentical_Click(object sender, RoutedEventArgs e)
         {
             Tools.StartFindIdenticalImages(this);
+        }
+
+        private void BtFindIdenticalBySizeAndShortName_Click(object sender, RoutedEventArgs e)
+        {
+            Tools.StartFindIdenticalBySizeAndShortName(this);
+        }
+
+        private void BtCategorizeMerged_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(TbDir.Text))
+            {
+                MessageBox.Show("Select workspace directory first.", "Problem", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                return;
+            }
+                        
+            var im = new ShowCategorizeMerged(TbDir.Text, _target) { Owner = this };
+            im.ShowDialog();
+            im = null;
+        }
+
+        private void BtRenameFolder_Click(object sender, RoutedEventArgs e)
+        {
+            Tools.RenameFolderTest(this);
         }
     }
 }

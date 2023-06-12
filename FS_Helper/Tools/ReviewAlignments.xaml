@@ -153,6 +153,7 @@
             <Button x:Name="BtPrev" Margin="5" FontSize="16" Grid.Column="0" Height="40" Click="BtPrev_Click">Previous</Button>
             <Button x:Name="BtNext" Margin="5" FontSize="16" Grid.Column="1" Height="40" Click="BtNext_Click">Next</Button>
         </Grid>
+        <Button x:Name="BtBatch" Margin="5" VerticalAlignment="Center" FontSize="18" Grid.Row="2" Grid.Column="3" Height="40" Click="BtBatch_Click">Start Batch</Button>
         <TextBlock x:Name="tbFileName" Text="NoFile" Grid.Row="2" Grid.Column="1" Margin="5" VerticalAlignment="Center"/>
         <TextBlock x:Name="tbRemoveCount" Text="NoFile" Grid.Row="4" Grid.Column="1" Margin="5" VerticalAlignment="Center"/>
         <Label Content="Press 'space' to select first image and continue" Grid.Row="4" Grid.Column="0" Margin="5" VerticalAlignment="Center"/>

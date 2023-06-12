@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -9,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
-
+using WPFCustomMessageBox;
 
 namespace FS_Helper
 {
@@ -19,96 +20,94 @@ namespace FS_Helper
         private static int _allCount;
         private static Mutex _locker;
 
-        public static void ConvertAll(string folder, ConnectionViewModel cvm)
+        public static void ConvertAll(string folder, ConnectionViewModel cvm, CancellationToken ct)
         {
-            _globalCount = 0;
+            
             _locker = new Mutex();
-
             var numCores = Math.Min(Environment.ProcessorCount, 10);
 
-            var dirInfo = new DirectoryInfo(folder);
-            var alFiles = dirInfo.GetFiles("*.png", SearchOption.TopDirectoryOnly);
-            _allCount = alFiles.Length;
+            //var dirInfo = new DirectoryInfo(folder);
+            //var alFiles = dirInfo.GetFiles("*.png", SearchOption.TopDirectoryOnly);
 
-            if (_allCount == 0)
+            var encoder = System.Drawing.Imaging.Encoder.Quality;
+            var encoderParameters = new EncoderParameters(1) { Param = { [0] = new EncoderParameter(encoder, 85L) } };
+
+            var jpgEncoder = GetEncoder(ImageFormat.Jpeg);
+            var pa = new ParallelOptions
             {
-                MessageBox.Show("Nothing to convert. Aborting.");
-                return;
-            }
-            var tsk =Task.Factory.StartNew(() =>
-                    {
-                        Parallel.ForEach(alFiles, file =>
-                        {
-                            var encoder = System.Drawing.Imaging.Encoder.Quality;
-                            var encoderParameters = new EncoderParameters(1) { Param = { [0] = new EncoderParameter(encoder, 85L) } };
-
-                            var jpgEncoder = GetEncoder(ImageFormat.Jpeg);
-                            var extension = System.IO.Path.GetExtension(file.FullName);
-                            if (extension != ".png") return;
-                            var name = System.IO.Path.GetFileNameWithoutExtension(file.FullName);
-                            var path = System.IO.Path.GetDirectoryName(file.FullName);
-                            lock (_locker)
-                            {
-                                cvm.Status = $"Converting {++_globalCount}/{_allCount}";
-                            }
-
-                            var png = Image.FromFile(file.FullName);
-                            png.Save($@"{path}\{name}.jpg", jpgEncoder, encoderParameters);
-                            png.Dispose();
-                            File.Delete(file.FullName);
-                        });
-                    });
-            while (!tsk.IsCompleted)
-                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
-            cvm.Status = "Ready.";
-        }
-
-        public static void ConvertAll_Old(string folder, ConnectionViewModel cvm)
-        {
-            _globalCount = 0;
-            _locker=new Mutex();
-
-            var numCores = Math.Min(Environment.ProcessorCount, 10);
-
-            var dirInfo = new DirectoryInfo(folder);
-            var alFiles = dirInfo.GetFiles("*.png", SearchOption.TopDirectoryOnly);
-            _allCount = alFiles.Length;
-
-            if (_allCount == 0)
+                MaxDegreeOfParallelism = numCores
+            };
+            while (true)
             {
-                MessageBox.Show("Nothing to convert. Aborting.");
-                return;
-            }
+                var alFiles = Util.GetFilesWithExtension(folder, ".png", ct);
+                _allCount = alFiles.Count;
 
-            var batchSize = (_allCount / numCores) + 1;
-
-            var count = 0;
-            var tasks = new List<Task>();
-
-            for (var i = 0; i < numCores; i++)
-            {
-                var list = new List<string>();
-                for (var x = 0; x < batchSize; x++)
+                if (_allCount == 0)
                 {
-                    list.Add(alFiles[count].FullName);
-                    count++;
-                    if (count >= _allCount)
-                        break;
+                    MessageBox.Show("Nothing to convert. Aborting.");
+                    break;
                 }
+                _globalCount = 0;
 
-                if (!list.Any()) break;
-                var tsk =
-                    Task.Factory.StartNew(() =>
+                var tsk = Task.Factory.StartNew(() =>
+                             Parallel.ForEach(alFiles, pa, file =>
+                         {
+                             Image png = null;
+                             var success = true;
+                             var name = System.IO.Path.GetFileNameWithoutExtension(file);
+                             var path = System.IO.Path.GetDirectoryName(file);
+                             if (ct.IsCancellationRequested)
+                                 return;
+                             lock (_locker)
+                             {
+                                 cvm.Status = $"Converting {++_globalCount}/{_allCount}";
+                             }
+                             
+                             try
+                             {
+                                 png = Image.FromFile(file);
+                                 png.Save($@"{path}\{name}.jpg", jpgEncoder, encoderParameters);
+                             }
+                             catch 
+                             {
+                                 success = false;
+                             }
+                             png.Dispose();
+                             try
+                             {
+                                 if (success) File.Delete(file);
+                                 if (!success) File.Delete($@"{path}\{name}.jpg");
+                             }
+                             catch { }
+                         }), ct);
+
+                while (!tsk.IsCompleted)
+                    Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
+
+                var tskWait = Task.Factory.StartNew(() =>
                 {
-                    ToJpg(list, cvm);
-                    return;
-                });
-                tasks.Add(tsk);
-            }
+                    var ts = new Stopwatch();
+                    ts.Start();
+                    while (ts.Elapsed.TotalSeconds < 15)
+                    {
+                        Thread.Sleep(100);
+                        cvm.Status = $"Waiting for new images {ts.Elapsed.ToString()}";
+                        if (ct.IsCancellationRequested)
+                            return;
+                    }
+                    ts.Stop();
 
-            while (tasks.Any(r => !r.IsCompleted))
-                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
-            cvm.Status = "Ready.";
+                    return;
+                }, ct);
+                while (!tskWait.IsCompleted)
+                    Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
+
+                Thread.Sleep(2000);
+            }
+            if (ct.IsCancellationRequested)
+                cvm.Status = "Canceled.";
+            else
+                cvm.Status = "Conversion is complete.";
         }
 
         /// <summary>

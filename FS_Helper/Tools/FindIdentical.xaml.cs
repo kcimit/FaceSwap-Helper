@@ -1,15 +1,9 @@
-﻿using Services;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using XnaFan.ImageComparison;
 
@@ -28,7 +22,6 @@ namespace FS_Helper
         private int current_image_index;
         private string current_image;
         List<System.Windows.Controls.Image> identical;
-        Bitmap thrash;
         private List<string> files;
         private ConnectionViewModel cvm;
         List<List<string>> listIdentical;
@@ -43,7 +36,6 @@ namespace FS_Helper
             Aborted = false;
             current_image_index = 0;
             analysis_complete = false;
-            thrash = FS_Helper.Properties.Resources.thrash;
 
             IdenticalReviewed = new List<string>();
 
@@ -85,7 +77,7 @@ namespace FS_Helper
             {
                 analysis_complete = true;
             }
-            cvm.Status = "Ready.";
+            cvm.Status = $"Ready. Found {listIdentical.Count} duplicate images";
             return;
         });
         }
@@ -171,8 +163,16 @@ namespace FS_Helper
             {
                 long size = -1;
                 string fileToKeep = "";
+                bool preferXSeg = false;
                 foreach (var file in files)
                 {
+                    string folder = new DirectoryInfo(System.IO.Path.GetDirectoryName(file)).FullName;
+                    if (File.Exists(Path.Combine(folder, "aligned_xseg", Path.GetFileName(file))))
+                    {
+                        fileToKeep = file;
+                        preferXSeg = true;
+                    }
+                    if (preferXSeg) continue;
                     var fi = new FileInfo(file);
                     if (fi.Length>size)
                     {
